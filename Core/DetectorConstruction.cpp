@@ -536,7 +536,7 @@ void DetectorConstruction::ConstructLayers(std::vector<G4double>& radius_dynamic
       if (fCreateGeometryFile) {
         Scin scinTemp(
           moduleNumber, moduleNumber, DetectorConstants::scinDim_inModule[0], DetectorConstants::scinDim_inModule[1],
-          DetectorConstants::scinDim_inModule[2], (radius_new/cm)*cos(phi1*180/M_PI), (radius_new/cm)*sin(phi1*180/M_PI), 0
+          DetectorConstants::scinDim_inModule[2], (radius_new/cm)*cos(phi1), (radius_new/cm)*sin(phi1), 0
         );
         fScinContainer.push_back(scinTemp);
         Slot slotTemp(moduleNumber, fLayerNumber, phi*180/M_PI, "module");
