@@ -14,6 +14,7 @@
  */
 
 #include "JPetGeantEventPack.h"
+#include <TObjectTable.h>
 
 ClassImp(JPetGeantEventPack)
 
@@ -21,6 +22,10 @@ JPetGeantEventPack::JPetGeantEventPack() : fMCHits("JPetGeantScinHits", 10000),
 fMCDecayTrees("JPetGeantDecayTree", 1000), fEvtIndex(0), fHitIndex(0), fMCDecayTreesIndex(0)
 {
   fGenInfo = new JPetGeantEventInformation();
+  // NOTE: ROOT has a special class, called TObjectTable, 
+  // which optionally keeps track of any object that inherits from TObject.
+  // To get rid of ROOT garbage collector issues, we need to remove this object from the table
+  gObjectTable->RemoveQuietly(this);
 }
 
 JPetGeantScinHits* JPetGeantEventPack::ConstructNextHit()
@@ -41,6 +46,7 @@ JPetGeantEventPack::~JPetGeantEventPack()
   fHitIndex = 0;
   fMCDecayTreesIndex = 0;
   fGenInfo->Clear();
+  delete fGenInfo;
 }
 
 void JPetGeantEventPack::Clear(Option_t *)

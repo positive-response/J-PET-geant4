@@ -2,8 +2,16 @@
 ## CMake script for J-PET Geant4 Monte Carlo simulation software
 ################################################################################
 
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(jpet_mc LANGUAGES CXX)
+
+################################################################################
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_COLOR_MAKEFILE   ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_DEFAULT 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 ################################################################################
 ## Det default build type to "Release"
@@ -19,6 +27,14 @@ endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
+################################################################################
+# To enable multithreading, run cmake with -DMT=ON
+if(MT)
+  add_compile_definitions(JPETMULTITHREADED)
+  message(STATUS "Multithreading ENABLED!")
+else()
+  message(STATUS "Multithreading DISABLED!")
+endif()
 ################################################################################
 ## Specify source folders
 set(FOLDERS_WITH_SOURCE
@@ -56,6 +72,7 @@ set(SCRIPT_FILES
   run5_lifetime.mac
   run6.mac
   run7.mac
+  run12.mac
   nema.mac
   cosmics.mac
   init_vis.mac
@@ -110,8 +127,14 @@ find_package(Geant4 REQUIRED ${GEANT4_LINK_OPTIONS} ui_all vis_all)
 include(${Geant4_USE_FILE})
 
 ################################################################################
+set(HEADERS_DIR ${PROJECT_SOURCE_DIR}/Core
+                ${PROJECT_SOURCE_DIR}/Info
+                ${PROJECT_SOURCE_DIR}/Objects/Framework
+                ${PROJECT_SOURCE_DIR}/Objects/Geant4
+                ${PROJECT_SOURCE_DIR}/CADMesh)
+
 ## Include header-only CADMesh library
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/CADMesh/)
+include_directories(SYSTEM ${HEADERS_DIR})
 
 ################################################################################
 ## Include Boost
@@ -142,6 +165,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS})
 add_definitions(${Boost_DEFINITIONS})
 link_directories(${Boost_LIBRARY_DIRS})
+
 ################################################################################
 ## Include ROOT
 find_package(ROOT REQUIRED)

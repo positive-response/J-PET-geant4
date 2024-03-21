@@ -14,8 +14,17 @@
  */
 
 #include "JPetGeantDecayTreeBranch.h"
+#include <TObjectTable.h>
 
 ClassImp(JPetGeantDecayTreeBranch)
+
+JPetGeantDecayTreeBranch::JPetGeantDecayTreeBranch()
+{
+  // NOTE: ROOT has a special class, called TObjectTable, 
+  // which optionally keeps track of any object that inherits from TObject.
+  // To get rid of ROOT garbage collector issues, we need to remove this object from the table
+  gObjectTable->RemoveQuietly(this);
+}
 
 JPetGeantDecayTreeBranch::~JPetGeantDecayTreeBranch()
 {

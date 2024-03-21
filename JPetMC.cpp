@@ -48,6 +48,14 @@ int main (int argc, char** argv)
     //! batch mode
     G4String command = "/control/execute ";
     G4String fileName = argv[1];
+    #ifdef JPETMULTITHREADED
+    if(argc > 2){
+      G4int nCPU = atoi(argv[2]);
+      G4cout << "Running on " << nCPU << " CPUs" << G4endl;
+      runManager->SetNumberOfThreads(nCPU);
+    }
+    #endif
+
     UImanager->ApplyCommand(command + fileName);
   } else {
     //! interactive mode
@@ -66,5 +74,8 @@ int main (int argc, char** argv)
     file << seed << "\n";
     file.close();
   }
+  #ifdef JPETMULTITHREADED
+    HistoManager::MergeNTuples(true); // merge ntuples and clean up
+  #endif
   return 0;
 }

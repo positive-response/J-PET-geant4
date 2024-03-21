@@ -13,15 +13,35 @@
  *  @file HistoManager.cpp
  */
 
-#include "../Info/PrimaryParticleInformation.h"
+#include "PrimaryParticleInformation.h"
+#include "JPetGeantDecayTreeBranch.h"
+#include "JPetGeantEventInformation.h"
+#include "JPetGeantScinHits.h"
+#include "VtxInformation.h"
+#include "DetectorHit.h"
+
 #include "DetectorConstants.h"
 #include "HistoManager.h"
 
 #include <G4SystemOfUnits.hh>
 #include <G4UnitsTable.hh>
 #include <vector>
+#include "G4Threading.hh"
+#include "G4AutoLock.hh"
+#include <TH1.h>
+#include <filesystem>
+#include "TFileMerger.h"
 
-HistoManager::HistoManager() : fMakeControlHisto(true)
+namespace {
+    G4Mutex HMutex = G4MUTEX_INITIALIZER;
+}
+
+namespace fs = std::filesystem;
+
+std::string HistoManager::fOuputFile = "mcGeant"; // TODO: This should be configurable
+std::string HistoManager::fOuputDir = "./output"; // TODO: This should be configurable
+
+HistoManager::HistoManager()
 {
   fTempDecayTree = new JPetGeantDecayTree();
   fEventPack = new JPetGeantEventPack();
@@ -29,7 +49,10 @@ HistoManager::HistoManager() : fMakeControlHisto(true)
   fDecayChannel = DecayChannel::kUnknown;
 }
 
-HistoManager::~HistoManager() {}
+HistoManager::~HistoManager() {
+  delete fTempDecayTree;
+  delete fEventPack;
+}
 
 void HistoManager::createHistogramWithAxes(
   TObject* object, TString xAxisName, TString yAxisName, TString zAxisName
@@ -49,14 +72,16 @@ void HistoManager::createHistogramWithAxes(
     tempHisto->GetYaxis()->SetTitle(yAxisName);
     tempHisto->GetZaxis()->SetTitle(zAxisName);
   }
-  fStats.Add(object);
+  fControlHistograms[object->GetName()] = object;
 }
 
 void HistoManager::fillHistogram(
   const char* name, double xValue, doubleCheck yValue, doubleCheck zValue
 ) {
-  TObject* tempObject = getObject<TObject>(name);
-  if (!tempObject) {
+  TObject* tempObject = nullptr;
+  try{ 
+    tempObject = fControlHistograms.at(name);
+  } catch (const std::out_of_range& e) {
     writeError(name, " does not exist");
     return;
   }
@@ -88,63 +113,82 @@ void HistoManager::fillHistogram(
 void HistoManager::Book()
 {
   if (fBookStatus) return;
+  G4AutoLock lock(&HMutex);
 
-  G4String fileName = "mcGeant.root";
+  G4String fileName = fOuputFile;
+  G4String thread = "";
+#ifdef JPETMULTITHREADED
+  if(G4Threading::G4GetThreadId()>-1) // ThreadId: -1 is for the master thread
+    fileName += "_" + std::to_string(G4Threading::G4GetThreadId() );
+    thread = std::to_string(G4Threading::G4GetThreadId() );
+#endif
+
+  auto currentDateTime = []() {
+      // Get current date/time and convert to string
+      time_t     now = time(0);
+      struct tm  tstruct;
+      char       buf[80];
+      tstruct = *localtime(&now);
+      // For more information about date/time format visit:
+      // http://en.cppreference.com/w/cpp/chrono/c/strftime
+      strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+      auto data_time_str = std::string(buf); // returned format is YYYY-MM-DD.HH:mm:ss
+      std::replace(data_time_str.begin(), data_time_str.end(), '-', '_');
+      std::replace(data_time_str.begin(), data_time_str.end(), '.', '-');
+      std::replace(data_time_str.begin(), data_time_str.end(), ':', '_');
+      return data_time_str;
+    };
+  
+  auto createDirIfNotExits = [](const std::string& path) {
+    fs::path dp (path);
+    if(!fs::exists (dp)){
+      std::cout << " HistoManager::Book : Created directory: "<< path <<std::endl;
+      fs::create_directories(dp);
+    }
+    return path;
+  };
 
   if (fEvtMessenger->AddDatetime()) {
-    TDatime* now = new TDatime();
-    std::string a_year = std::to_string(now->GetYear());
-    std::string a_month = std::to_string(now->GetMonth());
-    if (a_month.length() == 1) {
-      a_month = std::string("0") + a_month;
-    }
-    std::string a_day = std::to_string(now->GetDay());
-    if (a_day.length() == 1) {
-      a_day = std::string("0") + a_day;
-    }
-    std::string a_hour = std::to_string(now->GetHour());
-    if (a_hour.length() == 1) {
-      a_hour = std::string("0") + a_hour;
-    }
-    std::string a_minute = std::to_string(now->GetMinute());
-    if (a_minute.length() == 1) {
-      a_minute = std::string("0") + a_minute;
-    }
-    std::string a_second = std::to_string(now->GetSecond());
-    if (a_second.length() == 1) {
-      a_second = std::string("0") + a_second;
-    }
-    std::string dateTime =
-      a_year + "_" + a_month + "_" + a_day + "-"
-      + a_hour + "_" + a_minute + "_" + a_second;
-    fileName = dateTime + "." + fileName;
+    fileName = currentDateTime()+"."+fileName; 
   }
 
+  std::string path = createDirIfNotExits(fOuputDir); 
+  fileName = path+"/"+fileName+".root";
   fRootFile = new TFile(fileName, "RECREATE");
   if (!fRootFile) {
     G4cout << " HistoManager::Book :" << " problem creating the ROOT TFile " << G4endl;
     return;
   }
+  G4cout << " HistoManager::Book: created the ROOT TFile " << fileName << G4endl;
+
 
   Int_t bufsize = 32000;
   Int_t splitlevel = 2;
-
+  
+  fRootFile->cd();
   fTree = new TTree("T", "Tree keeps output from Geant simulation", splitlevel);
+#ifdef JPETMULTITHREADED
+  std::string worker = G4Threading::IsWorkerThread() ? "worker" : "master";
+  G4cout << "TTree created (" << worker << " thread)" << G4endl;
+#endif
   //! autosave when 1 Gbyte written
   fTree->SetAutoSave(1000000000);
   fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
 
   if (GetMakeControlHisto()) BookHistograms();
+  // gObjectTable->Print();
   fBookStatus = true;
 }
 
 void HistoManager::SaveEvtPack() 
-{
+{ 
+  G4AutoLock lock(&HMutex);
   if (!fEmptyEvent) {
     JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
     newDecayTree->Clear("C");
     newDecayTree->CopyDecayTree(fTempDecayTree);
   }
+  fRootFile->cd();
   fTree->Fill();
   fTempDecayTree->Clear("C");
   fEmptyEvent = true;
@@ -484,14 +528,17 @@ void HistoManager::AddNodeToDecayTree(int nodeID, int trackID)
 void HistoManager::Save()
 {
   if (!fRootFile) return;
+  G4AutoLock lock(&HMutex);
+  fRootFile->cd();
   fTree->Write();
   if (GetMakeControlHisto()) {
-    TIterator* it = fStats.MakeIterator();
-    TObject* obj;
-    while ((obj = it->Next())) obj->Write();
+    for(const auto& hist: fControlHistograms){
+      hist.second->Write();
+    }
   }
   fRootFile->Close();
-  G4cout << "\n----> Histograms and ntuples are saved\n" << G4endl;
+  delete fRootFile;
+  G4cout << "----> Histograms and ntuples are saved\n" << G4endl;
 }
 
 void HistoManager::writeError(const char* nameOfHistogram, const char* messageEnd)
@@ -504,3 +551,38 @@ void HistoManager::writeError(const char* nameOfHistogram, const char* messageEn
     << histName << " " << messageEnd << G4endl;
   }
 }
+
+void HistoManager::MergeNTuples(bool cleanUp){
+  auto getFilesInDir = [](const std::string& path, const std::string& extension){
+    std::vector<std::string> files;
+    if(path.empty())
+      return files;
+    for (const auto & file: fs::directory_iterator(path)) {
+      auto file_path = static_cast<std::string>(file.path());
+      if(extension.empty()){
+        files.push_back(file_path);
+      }
+      else {
+        if(file_path.find(extension) != std::string::npos)
+          files.push_back(file_path);
+      }
+    }
+    return files;
+  };
+
+  auto files_to_merge = getFilesInDir(fOuputDir, ".root");
+  TFileMerger fm(kFALSE); // Don't make a local copies of merging files 
+  fm.OutputFile((fOuputFile+"_merged.root").c_str());
+  for(const auto& file : files_to_merge){
+    fm.AddFile((file).c_str());
+  }
+  fm.Merge();
+  G4cout << "NTuples are merged!" << G4endl;
+  if(cleanUp){
+    for(const auto& file : files_to_merge){
+      fs::remove(file);
+    }
+    G4cout << "Cleaning up... - done!\n" << G4endl;
+  }
+}
+

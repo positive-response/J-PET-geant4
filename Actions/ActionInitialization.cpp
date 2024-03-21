@@ -21,20 +21,24 @@
 #include "EventAction.h"
 #include "RunAction.h"
 
-ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {}
+ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {
+}
 
 ActionInitialization::~ActionInitialization() {}
 
 // cppcheck-suppress unusedFunction
-void ActionInitialization::BuildForMaster() const {}
+void ActionInitialization::BuildForMaster() const {
+  fHistoManager.Put(std::make_shared<HistoManager>());
+  SetUserAction(new RunAction(fHistoManager.Get().get()));
+}
 
 // cppcheck-suppress unusedFunction
 void ActionInitialization::Build() const
 {
-  HistoManager* histo = new HistoManager();
-  SetUserAction(new EventAction(histo));
-  SetUserAction(new RunAction(histo));
-  SetUserAction(new PrimaryGeneratorAction(histo));
+  fHistoManager.Put(std::make_shared<HistoManager>());
+  SetUserAction(new EventAction(fHistoManager.Get().get()));
+  SetUserAction(new RunAction(fHistoManager.Get().get()));
+  SetUserAction(new PrimaryGeneratorAction(fHistoManager.Get().get()));
   SetUserAction(new TrackingAction);
-  SetUserAction(new SteppingAction(histo));
+  SetUserAction(new SteppingAction(fHistoManager.Get().get()));
 }
