@@ -29,6 +29,10 @@ The CADMesh is being cloned by running the:
 `cd build`  
 `cmake .. -DCMAKE_PREFIX_PATH=path_to_the_directory_containing_cadmesh-config.cmake`  
 `make`  
+Once you want to compile with **mutlithreded (MT)** mode:  
+`cmake .. -DMT=ON -DCMAKE_PREFIX_PATH=path_to_the_directory_containing_cadmesh-config.cmake`  
+`make` 
+
 output file: (in build folder)  
 `bin/jpet_mc`  
 
