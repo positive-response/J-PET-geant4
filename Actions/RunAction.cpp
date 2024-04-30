@@ -54,9 +54,19 @@ void RunAction::BeginOfRunAction(const G4Run*)
     gRandom->SetSeed(fEvtMessenger->GetSeed());
     G4Random::setTheSeed(fEvtMessenger->GetSeed() ^ mask);
   }
+  fTimer.Start();
 }
 
 // cppcheck-suppress unusedFunction
-void RunAction::EndOfRunAction(const G4Run*) { 
-  fHistoManager->Save();
+void RunAction::EndOfRunAction(const G4Run*) 
+{
+  fTimer.Stop();
+  G4double loopRealElapsedTime = fTimer.GetRealElapsed();
+  if (IsMaster()) {
+    G4cout << "Global-loop elapsed time [s] : " << loopRealElapsedTime << G4endl;
   }
+  else
+    G4cout << "Local-loop elapsed time [s] : " << loopRealElapsedTime << G4endl;
+
+  fHistoManager->Save();
+}

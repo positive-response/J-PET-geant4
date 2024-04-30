@@ -20,6 +20,7 @@
 
 #include <G4UserRunAction.hh>
 #include <globals.hh>
+#include "G4Timer.hh"
 
 class G4Run;
 
@@ -39,6 +40,9 @@ public:
 private:
   HistoManager* fHistoManager = nullptr;
   EventMessenger* fEvtMessenger = EventMessenger::GetEventMessenger();
+  G4Timer fTimer;
+
+  
 };
 
 #endif /* !RUNACTION_H */
