@@ -10,8 +10,15 @@
 * doxygen
 
 ## Environemt setup with CVMFS
-You can fulfill above prerequsities with CernVM File System. See [CVMFS](https://cvmfs.readthedocs.io/en/stable/cpt-quickstart.html) documenttion. An example setup script for Centos 7 OS:  
-`source setups/setup-env-cvmfs-centos7.sh`  
+You can fulfill above prerequsities with CernVM File System. See [CVMFS](https://cvmfs.readthedocs.io/en/stable/cpt-quickstart.html) documenttion. 
+### Centos7:
+For Geant4 v10 `source setups/setup-env-cvmfs-g4v10-centos7.sh`  
+For Geant4 v11 `source setups/setup-env-cvmfs-g4v11-centos7.sh`   
+
+### Debian/Ubunu:
+For Geant4 v10: TODO  
+For Geant4 v11: TODO
+
 Once you run this script you have compiled Geant4 and all depandancies!
 
 ## Environemt setup with Conda
