@@ -25,10 +25,13 @@
 #include <G4UImanager.hh>
 #include <fstream>
 #include <random>
+#include <cxxopts.hpp>
 
 int main (int argc, char** argv)
 {
   G4Random::setTheEngine(new CLHEP::MTwistEngine());
+
+  cxxopts::Options options("JPetMC", "J-PET Monte Carlo Simulation");
 
   G4UIExecutive* ui = 0;
   if (argc == 1) {
