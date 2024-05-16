@@ -22,9 +22,9 @@ For Geant4 v11: TODO
 Once you run this script you have compiled Geant4 and all depandancies!
 
 ## Environemt setup with Conda
-`conda env create --name j-pet --file setups/env_conda_jpet.yml`  
+`conda env create --name j-pet --file setups/conda_env_g4v11-jpet.yml`  
 `conda activate j-pet`   
-Once you install & activate this environment you can build Geant4 locally (all depandacies are there)!
+Once you install & activate this environment you can build your application!
 
 ## Git submodule
 The CADMesh is being cloned by running the:

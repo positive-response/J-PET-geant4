@@ -1,0 +1,14 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - geant4=11.0.3
+  - root=6.28.0
+  - traitlets=5.7.1
+  - xerces-c=3.2.4
+  - libffi=3.4.4
+  - gxx=11.3.0
+  - cmake=3.29.3
+  - boost-cpp=1.78.0
+  - pthread-stubs=0.4
+  - doxygen=1.10.0
