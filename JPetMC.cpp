@@ -29,32 +29,37 @@
 
 int main (int argc, char** argv)
 {
-  if (argc < 2) {
-    G4cout << "[ERROR]:: Command line options missing (use '" << argv[0] << " --help' if needed)" << G4endl;
+  auto ERROR_AND_EXIT_FAILURE = [](const std::string& message) {
+    G4cout << "[ERROR]:: " << message << G4endl;
     std::exit(EXIT_FAILURE);
-  }
+  };
+
+  if (argc < 2)
+    ERROR_AND_EXIT_FAILURE("Command line options missing (use '"+std::string(argv[0])+" --help' if needed)");
   
   G4Random::setTheEngine(new CLHEP::MTwistEngine());
   cxxopts::Options options("JPetMC", "J-PET Monte Carlo Simulation");
   options.add_options()
   ("h,help", "Print usage")
   ("d,debug", "Enable debugging") // a bool parameter
-  ("v,vis-macro", "File macro to execute", cxxopts::value<std::string>())
-  // ("i,integer", "Int param", cxxopts::value<int>())
-  // ("f,file", "File name", cxxopts::value<std::string>())
-  // ("v,verbose", "Verbose output", cxxopts::value<bool>()->default_value("false"))
+  ("v,vis", "Vis macro to execute", cxxopts::value<std::string>())
+  ("j,job", "Job macro to execute", cxxopts::value<std::string>())
+  ("t,nThreads", "Number of threads to execute on", cxxopts::value<int>()->default_value("1"))
   ;
   options.allow_unrecognised_options();
-  auto result = options.parse(argc, argv);
+  auto cmdLineArgs = options.parse(argc, argv);
 
-  if (result.count("help"))
+  if (cmdLineArgs.count("help"))
     {
       std::cout << options.help() << std::endl;
       exit(0);
     }
 
-  G4UIExecutive* ui = 0;
-  if (argc == 1) {
+  G4UIExecutive* ui = nullptr;
+  if (cmdLineArgs.count("v")) {
+    // interactive mode
+    ERROR_AND_EXIT_FAILURE("Command line options not supported in interactive mode, yet");
+    // TODO: figure it out what to pass here!
     ui = new G4UIExecutive(argc, argv);
   }
 
@@ -70,21 +75,30 @@ int main (int argc, char** argv)
   if (!ui) {
     //! batch mode
     G4String command = "/control/execute ";
-    G4String fileName = argv[1];
-    #ifdef JPETMULTITHREADED
-    if(argc > 2){
-      G4int nCPU = atoi(argv[2]);
-      G4cout << "Running on " << nCPU << " CPUs" << G4endl;
-      runManager->SetNumberOfThreads(nCPU);
-    }
-    #endif
+    if (cmdLineArgs.count("j")) {
+      G4String fileName  = cmdLineArgs["j"].as<std::string>();
+      #ifdef JPETMULTITHREADED
+      if(argc > 2){
+        G4int nCPU = cmdLineArgs["t"].as<int>();
+        G4cout << "Running on " << nCPU << " CPUs" << G4endl;
+        runManager->SetNumberOfThreads(nCPU);
+      }
+      #endif
 
-    UImanager->ApplyCommand(command + fileName);
+      UImanager->ApplyCommand(command + fileName);
+    } else {
+      ERROR_AND_EXIT_FAILURE("Job macro not provided, use '--help' to see usage");
+    }
   } else {
-    //! interactive mode
-    UImanager->ApplyCommand("/control/execute init_vis.mac");
-    ui->SessionStart();
-    delete ui;
+    // interactive mode
+    if (cmdLineArgs.count("v")){
+      auto fileName = cmdLineArgs["v"].as<std::string>();
+      UImanager->ApplyCommand(G4String("/control/execute ") + fileName);
+      ui->SessionStart();
+      delete ui;
+    } else {
+      ERROR_AND_EXIT_FAILURE("Job macro not provided, use '--help' to see usage");
+    }
   }
 
   delete visManager;
