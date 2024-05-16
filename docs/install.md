@@ -27,17 +27,16 @@ Once you run this script you have compiled Geant4 and all depandancies!
 Once you install & activate this environment you can build your application!
 
 ## Git submodule
-The CADMesh is being cloned by running the:
-`git submodule init`  
-`git submodule update`
+External submodules can be easly cloned and initialized with running the script:
+`./setups/init_submodules.sh`
 
 ## How to compile?
 `mkdir build`  
 `cd build`  
-`cmake .. -DCMAKE_PREFIX_PATH=path_to_the_directory_containing_cadmesh-config.cmake`  
+`cmake ..`  
 `make`  
 Once you want to compile with **mutlithreded (MT)** mode:  
-`cmake .. -DMT=ON -DCMAKE_PREFIX_PATH=path_to_the_directory_containing_cadmesh-config.cmake`  
+`cmake .. -DMT=ON`  
 `make` 
 
 output file: (in build folder)  
