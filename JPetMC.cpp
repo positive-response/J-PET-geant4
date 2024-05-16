@@ -29,8 +29,12 @@
 
 int main (int argc, char** argv)
 {
+  if (argc < 2) {
+    G4cout << "[ERROR]:: Command line options missing (use '" << argv[0] << " --help' if needed)" << G4endl;
+    std::exit(EXIT_FAILURE);
+  }
+  
   G4Random::setTheEngine(new CLHEP::MTwistEngine());
-
   cxxopts::Options options("JPetMC", "J-PET Monte Carlo Simulation");
   options.add_options()
   ("h,help", "Print usage")
