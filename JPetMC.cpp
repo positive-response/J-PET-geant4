@@ -32,6 +32,22 @@ int main (int argc, char** argv)
   G4Random::setTheEngine(new CLHEP::MTwistEngine());
 
   cxxopts::Options options("JPetMC", "J-PET Monte Carlo Simulation");
+  options.add_options()
+  ("h,help", "Print usage")
+  ("d,debug", "Enable debugging") // a bool parameter
+  ("v,vis-macro", "File macro to execute", cxxopts::value<std::string>())
+  // ("i,integer", "Int param", cxxopts::value<int>())
+  // ("f,file", "File name", cxxopts::value<std::string>())
+  // ("v,verbose", "Verbose output", cxxopts::value<bool>()->default_value("false"))
+  ;
+  options.allow_unrecognised_options();
+  auto result = options.parse(argc, argv);
+
+  if (result.count("help"))
+    {
+      std::cout << options.help() << std::endl;
+      exit(0);
+    }
 
   G4UIExecutive* ui = 0;
   if (argc == 1) {
