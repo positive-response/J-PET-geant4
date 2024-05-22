@@ -23,6 +23,7 @@
 #include <TVector3.h>
 #include <TObject.h>
 #include <TBits.h>
+#include "TBuffer.h"
 
 /**
  * @class JPetGeantEventPack
@@ -32,7 +33,7 @@
  *  and decay tree (in JPetGeantDecayTree)
  *  Class is directly processed in JPetGeantParser
  */
-class JPetGeantEventPack : public TObject
+class JPetGeantEventPack //: public TObject
 {
 public:
   JPetGeantEventPack();
@@ -52,6 +53,9 @@ public:
   // unsigned int GetNumberOfDecayTrees() { return fMCDecayTreesIndex; };
   unsigned int GetEventNumber() { return fEvtIndex; };
   void SetEventNumber(int x) { fEvtIndex = x; };
+
+  // Override Streamer method
+  // void Streamer(TBuffer &R__b);
 
 private:
   TClonesArray fMCHits;

@@ -29,8 +29,24 @@ JPetGeantEventPack::JPetGeantEventPack() :
   // NOTE: ROOT has a special class, called TObjectTable, 
   // which optionally keeps track of any object that inherits from TObject.
   // To get rid of ROOT garbage collector issues, we need to remove this object from the table
-  gObjectTable->RemoveQuietly(this);
+  //gObjectTable->RemoveQuietly(this);
 }
+
+// void JPetGeantEventPack::Streamer(TBuffer &R__b) {
+//     if (R__b.IsReading()) {
+//         TObject::Streamer(R__b);
+//         R__b >> fMCHits;
+//         R__b >> fGenInfo;
+//         R__b >> fEvtIndex;
+//         R__b >> fHitIndex;
+//     } else {
+//         TObject::Streamer(R__b);
+//         R__b << fMCHits;
+//         R__b << fGenInfo;
+//         R__b << fEvtIndex;
+//         R__b << fHitIndex;
+//     }
+// }
 
 JPetGeantScinHits* JPetGeantEventPack::ConstructNextHit()
 {
