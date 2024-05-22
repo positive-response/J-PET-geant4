@@ -18,8 +18,12 @@
 
 ClassImp(JPetGeantEventPack)
 
-JPetGeantEventPack::JPetGeantEventPack() : fMCHits("JPetGeantScinHits", 10000),
-fMCDecayTrees("JPetGeantDecayTree", 1000), fEvtIndex(0), fHitIndex(0), fMCDecayTreesIndex(0)
+JPetGeantEventPack::JPetGeantEventPack() : 
+  fMCHits("JPetGeantScinHits", 10000),
+  // fMCDecayTrees("JPetGeantDecayTree", 1000), 
+  fEvtIndex(0), 
+  fHitIndex(0)
+  //  fMCDecayTreesIndex(0)
 {
   fGenInfo = new JPetGeantEventInformation();
   // NOTE: ROOT has a special class, called TObjectTable, 
@@ -33,18 +37,18 @@ JPetGeantScinHits* JPetGeantEventPack::ConstructNextHit()
   return dynamic_cast<JPetGeantScinHits*>(fMCHits.ConstructedAt(fHitIndex++));
 }
 
-JPetGeantDecayTree* JPetGeantEventPack::ConstructNextDecayTree()
-{
-  return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees.ConstructedAt(fMCDecayTreesIndex++));
-}
+// JPetGeantDecayTree* JPetGeantEventPack::ConstructNextDecayTree()
+// {
+//   return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees.ConstructedAt(fMCDecayTreesIndex++));
+// }
 
 JPetGeantEventPack::~JPetGeantEventPack()
 {
   fMCHits.Clear("C");
-  fMCDecayTrees.Clear("C");
+  //fMCDecayTrees.Clear("C");
   fEvtIndex = 0;
   fHitIndex = 0;
-  fMCDecayTreesIndex = 0;
+  // fMCDecayTreesIndex = 0;
   fGenInfo->Clear();
   delete fGenInfo;
 }
@@ -52,8 +56,8 @@ JPetGeantEventPack::~JPetGeantEventPack()
 void JPetGeantEventPack::Clear(Option_t *)
 {
   fMCHits.Clear("C");
-  fMCDecayTrees.Clear("C");
+  // fMCDecayTrees.Clear("C");
   fHitIndex = 0;
-  fMCDecayTreesIndex = 0;
+  // fMCDecayTreesIndex = 0;
   fGenInfo->Clear();
 }

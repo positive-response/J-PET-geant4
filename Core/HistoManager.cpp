@@ -43,14 +43,14 @@ std::string HistoManager::fOuputDir = "./output"; // TODO: This should be config
 
 HistoManager::HistoManager()
 {
-  fTempDecayTree = new JPetGeantDecayTree();
+  //fTempDecayTree = new JPetGeantDecayTree();
   fEventPack = new JPetGeantEventPack();
   fGeantInfo = fEventPack->GetEventInformation();
-  fDecayChannel = DecayChannel::kUnknown;
+  fDecayChannel = DecayChannel::jpgUnknown;
 }
 
 HistoManager::~HistoManager() {
-  delete fTempDecayTree;
+  //delete fTempDecayTree;
   delete fEventPack;
 }
 
@@ -183,14 +183,14 @@ void HistoManager::Book()
 void HistoManager::SaveEvtPack() 
 { 
   G4AutoLock lock(&HMutex);
-  if (!fEmptyEvent) {
-    JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
-    newDecayTree->Clear("C");
-    newDecayTree->CopyDecayTree(fTempDecayTree);
-  }
+  // if (!fEmptyEvent) {
+  //   JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
+  //   newDecayTree->Clear("C");
+  //   newDecayTree->CopyDecayTree(fTempDecayTree);
+  // }
   fRootFile->cd();
   fTree->Fill();
-  fTempDecayTree->Clear("C");
+  //fTempDecayTree->Clear("C");
   fEmptyEvent = true;
 }
 

@@ -40,28 +40,28 @@ public:
   void Clear(Option_t* = "");
 
   JPetGeantScinHits* ConstructNextHit();
-  JPetGeantDecayTree* ConstructNextDecayTree();
+  // JPetGeantDecayTree* ConstructNextDecayTree();
   JPetGeantScinHits* GetHit(int i) {
     return dynamic_cast<JPetGeantScinHits*>(fMCHits[i]);
   };
-  JPetGeantDecayTree* GetDecayTree(int i) {
-    return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees[i]);
-  };
+  // JPetGeantDecayTree* GetDecayTree(int i) {
+  //   return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees[i]);
+  // };
   JPetGeantEventInformation* GetEventInformation() { return fGenInfo; };
   unsigned int GetNumberOfHits() { return fHitIndex; };
-  unsigned int GetNumberOfDecayTrees() { return fMCDecayTreesIndex; };
+  // unsigned int GetNumberOfDecayTrees() { return fMCDecayTreesIndex; };
   unsigned int GetEventNumber() { return fEvtIndex; };
   void SetEventNumber(int x) { fEvtIndex = x; };
 
 private:
   TClonesArray fMCHits;
-  TClonesArray fMCDecayTrees;
+  //TClonesArray fMCDecayTrees;
   JPetGeantEventInformation* fGenInfo;
   unsigned int fEvtIndex;
   unsigned int fHitIndex;
-  unsigned int fMCDecayTreesIndex;
+  // unsigned int fMCDecayTreesIndex;
 
-  ClassDef(JPetGeantEventPack, 3)
+  ClassDef(JPetGeantEventPack, 4)
 };
 
 #endif /* !JPETGEANTEVENTPACK_H */
