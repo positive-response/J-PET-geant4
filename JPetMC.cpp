@@ -14,6 +14,7 @@
  */
 
 #include "Actions/ActionInitialization.h"
+#include "Actions/EventAction.h"
 #include "Core/DetectorConstruction.h"
 #include "Info/EventMessenger.h"
 #include "Core/PhysicsList.h"
@@ -45,6 +46,7 @@ int main (int argc, char** argv)
   ("v,vis", "Vis macro to execute", cxxopts::value<std::string>())
   ("j,job", "Job macro to execute", cxxopts::value<std::string>())
   ("t,nThreads", "Number of threads to execute on", cxxopts::value<int>()->default_value("1"))
+  ("m,evtMult", "Event multiplicity (default -1, no cut)", cxxopts::value<int>()->default_value("-1"))
   ;
   options.allow_unrecognised_options();
   auto cmdLineArgs = options.parse(argc, argv);
@@ -84,6 +86,10 @@ int main (int argc, char** argv)
         runManager->SetNumberOfThreads(nCPU);
       }
       #endif
+      if (cmdLineArgs.count("m")) {
+        EventAction::EvtMultCut = cmdLineArgs["m"].as<int>();
+      }
+
 
       UImanager->ApplyCommand(command + fileName);
     } else {
