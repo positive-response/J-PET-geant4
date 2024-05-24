@@ -39,7 +39,7 @@ namespace {
 namespace fs = std::filesystem;
 
 std::string HistoManager::fOuputFile = "mcGeant"; // TODO: This should be configurable
-std::string HistoManager::fOuputDir = "./output"; // TODO: This should be configurable
+std::string HistoManager::OuputDir = "./output";
 
 HistoManager::HistoManager()
 {
@@ -152,7 +152,7 @@ void HistoManager::Book()
     fileName = currentDateTime()+"."+fileName; 
   }
 
-  std::string path = createDirIfNotExits(fOuputDir); 
+  std::string path = createDirIfNotExits(OuputDir); 
   fileName = path+"/"+fileName+".root";
   fRootFile = new TFile(fileName, "RECREATE");
   if (!fRootFile) {
@@ -570,9 +570,9 @@ void HistoManager::MergeNTuples(bool cleanUp){
     return files;
   };
 
-  auto files_to_merge = getFilesInDir(fOuputDir, ".root");
+  auto files_to_merge = getFilesInDir(OuputDir, ".root");
   TFileMerger fm(kFALSE); // Don't make a local copies of merging files 
-  fm.OutputFile((fOuputFile+"_merged.root").c_str());
+  fm.OutputFile((OuputDir+"/"+fOuputFile+"_merged.root").c_str());
   for(const auto& file : files_to_merge){
     fm.AddFile((file).c_str());
   }
