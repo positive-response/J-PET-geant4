@@ -84,7 +84,7 @@ public:
   void fillHistogram(const char* name, double xValue, doubleCheck yValue = doubleCheck(), doubleCheck zValue = doubleCheck());
   void writeError(const char* nameOfHistogram, const char* messageEnd);
   static void MergeNTuples(bool cleanUp=false);
-  static std::string fOuputFile;
+  static std::string OuputFileName;
   static std::string OuputDir;
 
 private:
