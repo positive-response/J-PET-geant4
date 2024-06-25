@@ -32,6 +32,9 @@ MaterialExtensionMessenger::MaterialExtensionMessenger()
   fDirectory = new G4UIdirectory("/jpetmc/material/");
   fDirectory->SetGuidance("Commands for controling the geometry materials");
 
+  f5GammaOnly = new G4UIcmdWithoutParameter("/jpetmc/material/fiveGammaOnly", this);
+  f5GammaOnly->SetGuidance("Only 5 gamma events will be generated (lifetime as for oPs)"); 
+
   f3GammaOnly = new G4UIcmdWithoutParameter("/jpetmc/material/threeGammaOnly", this);
   f3GammaOnly->SetGuidance("Only 3 gamma events will be generated (lifetime as for oPs)");
 
@@ -52,6 +55,9 @@ MaterialExtensionMessenger::MaterialExtensionMessenger()
 
   fAddDirectComponent = new G4UIcmdWithAString("/jpetmc/material/directComponent", this);
   fAddDirectComponent->SetGuidance("Adding direct positron annihilation component with mean lifetime and intensity");
+  
+  fSetpPs3GFraction = new G4UIcmdWithADouble("/jpetmc/material/pPs3GFraction", this);
+  fSetpPs3GFraction->SetGuidance("Setting fraction of the pPs to annihilate to 3 gamma");
 
   fReloadMaterials = new G4UIcmdWithAString("/jpetmc/material/reloadMaterials", this);
   fReloadMaterials->SetGuidance("Reloading material for parameters given by user");
@@ -59,6 +65,7 @@ MaterialExtensionMessenger::MaterialExtensionMessenger()
 
 MaterialExtensionMessenger::~MaterialExtensionMessenger()
 {
+  delete f5GammaOnly;
   delete f3GammaOnly;
   delete f3GammapPs;
   delete f2GammaOnly;
@@ -66,11 +73,15 @@ MaterialExtensionMessenger::~MaterialExtensionMessenger()
   delete fAddoPsComponent;
   delete fSetpPsComponent;
   delete fAddDirectComponent;
+  delete fSetpPs3GFraction;
+  delete fReloadMaterials;
 }
 
 void MaterialExtensionMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-  if (command == f3GammaOnly) {
+   if (command == f5GammaOnly) {
+     MaterialParameters::SetAnnihilationMode("oPs5G");
+   } else if (command == f3GammaOnly) {
     MaterialParameters::SetAnnihilationMode("oPs3G");
   } else if (command == f3GammapPs) {
     MaterialParameters::SetAnnihilationMode("pPs3G");
@@ -102,6 +113,8 @@ void MaterialExtensionMessenger::SetNewValue(G4UIcommand* command, G4String newV
     is >> meanLifetime >> probability;
     MaterialParameters::fTemp.directLifetimes.push_back(meanLifetime);
     MaterialParameters::fTemp.directProbabilities.push_back(probability);
+  } else if (command == fSetpPs3GFraction) {
+    MaterialParameters::SetpPs3GFraction(fSetpPs3GFraction->GetNewDoubleValue(newValue));
   } else if (command == fReloadMaterials) {
     G4String paramString = newValue;
     DetectorConstruction::GetInstance()->ReloadMaterials(paramString);

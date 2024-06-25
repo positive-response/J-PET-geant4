@@ -1,7 +1,7 @@
 # Parameters for MC simulations with Geant4 macros
 Following options can be added to macro files, that are read by Geat4. Example files are in `scripts` folder, and also those files are copied to `bin` directory during program build.  
 
-## Using different geometries 
+## Using different geometries
 * 3 layers of scintillators (48, 48, 96)  
   each scintillator: 1.9x0.7x50 cm^3 wrapped in kapton foil  
   detector frame: loaded from CAD file  
@@ -11,17 +11,21 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/detector/loadTargetForRun runNr`  
 * shows only scintillator wrapped in a kapton foil:  
  `/jpetmc/detector/loadOnlyScintillators`  
-* not implemented option that should load n-layer fully packed with 
+* not implemented option that should load n-layer fully packed with
   scintillators barrel:  
  `/jpetmc/detector/loadIdealGeom`  
 * loads modular layer in two configurations (Single and Double)
  `/jpetmc/detector/loadModularLayer [option]`  
+* load detector configuration from JSON file
+ `/jpetmc/detector/jsonSetupFile [fileName]`
+* set the number of Run that is to be loaded from JSON file
+ `/jpetmc/detector/jsonSetupRunNum [number]`
 
 ## General parameters:  
 * Hit merging time:  
   define time range, between hits in scintillator, which will be classified as single hit:  
  `/jpetmc/detector/hitMergingTime`  
-* Adding date and time to the name of the output file, so multiple executions of the simulation 
+* Adding date and time to the name of the output file, so multiple executions of the simulation
   does not overwrite the default file (be careful with simulatenous simulations in the same directory)  
  `/jpetmc/output/AddDatetime 1`  
 
@@ -68,6 +72,26 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/event/ShowProgress`  
 * Give nema point number to simulate (1-6):  
  `/jpetmc/source/nema`  
+* Simulate couple of nema points at once with the same acitivity:  
+ `/jpetmc/source/nema/mixed`  
+* Setting position of given nema points:  
+ `/jpetmc/source/nema/mixed/setPosition [point] [x position] [y position] [z position]`__
+* Set weight of a given nema point:  
+ `/jpetmc/source/nema/mixed/setWeight [point] [weight - int from 0 to infty, when 0 is removing given point]`  
+* Set mean lifetime of a given nema point:  
+ `/jpetmc/source/nema/mixed/setLifetime [point] [lifetime - int from 0 to infty]`  
+* Allow a given point to annihilate into 3 photons based on the mean lifetime set -> Prob3G = lifetime/oPsLifetimevacuum:  
+ `/jpetmc/source/nema/mixed/allow3G [point]'  
+* Points are simulated at now only as cylinders. Setting size of that cylinder:  
+ `/jpetmc/source/nema/mixed/setCylinderSize [point] [radius] [length]`  
+* Allow a given point to generate prompt photon (by default it is true):  
+ `/jpetmc/source/nema/mixed/allowPrompt [point]'  
+* Points are simulated at now only as cylinders. Setting size of the cylinder for prompt:  
+ `/jpetmc/source/nema/mixed/setPromptSourceSize [point] [radius] [length]`  
+* Rotating the shape of the nema point:  
+ `/jpetmc/source/nema/mixed/setCylinderRotation [point] [phi] [theta]`  
+* Changing the shape of the nema point by shifting position in X:  
+ `/jpetmc/source/nema/mixed/setCylinderShapeParametersY [point] [direction and spread] [shape parameter1 - power] [shape parameter2 - range]`  
 * set parameters of gamma beam:  
  `/jpetmc/source/gammaBeam/setEnergy setPosition setMomentum`  
 * set parameters of the isotope source, shape, if cylinder: radius, z-lenght (half):  
@@ -83,6 +107,10 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/SaveSeed true`  
 * creation decay tree:  
  `/jpetmc/output/CreateDecayTree`  
+* generate only cosmic muons  
+ `/jpetmc/source/cosmicOnly
+* generate cosmic muons in cylinder or cuboid (by default in cuboid)  
+ `/jpetmc/source/cosmicGenShape [parameter - cuboid or cylinder]
 
 ## Creating .json file with geometry setup for J-PET Framework. If one of these two option will be put into macro, the output file will be created.
 * select a type of output file strucure - Big Barrel or Modular format (default "barrel" other possible "modular"):  

@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -34,6 +34,7 @@ public:
   ~JPetGeantEventInformation();
 
   void Clear(Option_t* = "");
+  void SetFiveGammaGen(bool tf) { fGenGammaNum.SetBitNumber(3, tf ); };
   void SetThreeGammaGen(bool tf) { fGenGammaNum.SetBitNumber(2, tf); };
   void SetTwoGammaGen(bool tf) { fGenGammaNum.SetBitNumber(1, tf); };
   void SetPromptGammaGen(bool tf) { fGenGammaNum.SetBitNumber(0, tf); };
@@ -42,6 +43,7 @@ public:
   void SetVtxPromptPosition(double x, double y, double z) { fVtxPromptPosition.SetXYZ(x, y, z); };
   void SetLifetime(double x) { fLifetime = x; };
   void SetPromptLifetime(double x) { fPromptLifetime = x; };
+  bool GetFiveGammaGen() const { return fGenGammaNum.TestBitNumber(3); };
   bool GetThreeGammaGen() const { return fGenGammaNum.TestBitNumber(2); };
   bool GetTwoGammaGen() const { return fGenGammaNum.TestBitNumber(1); };
   bool GetPromptGammaGen() const { return fGenGammaNum.TestBitNumber(0); };
@@ -58,11 +60,14 @@ public:
   double GetPromptLifetime() const { return fPromptLifetime; };
   void SetMomentumGamma(int index, double x, double y, double z) {
     fMomentumGamma[index].SetXYZ(x, y, z);
-  }
-  TVector3 GetMomentumGamma(int index) const { return fMomentumGamma[index]; }
+  };
+  TVector3 GetMomentumGamma(int index) const { return fMomentumGamma[index]; };
+  void setCosmicEventTag(bool cosmicTag) { fCosmicEventTag = cosmicTag; };
+
+  bool getCosmicEventTag() const { return fCosmicEventTag; };
 
 private:
-  const unsigned int fMaxGammaNumberIndex = 3;
+  const unsigned int fMaxGammaNumberIndex = 5;
   //! Position of annihilation
   TVector3 fVtxPosition;
   //! Position of prompt photon emmision
@@ -77,9 +82,10 @@ private:
   //! generated lifetime of emmited prompt photon; filled only if prompt gamma is generated
   double fPromptLifetime = -1.0;
   std::vector<TVector3> fMomentumGamma;
+  bool fCosmicEventTag = false;
 
 private:
-  ClassDef(JPetGeantEventInformation, 6)
+  ClassDef(JPetGeantEventInformation, 7)
 };
 
 #endif /* !JPET_GEANT_EVENT_INFORMATION_H */

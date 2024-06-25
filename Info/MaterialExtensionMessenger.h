@@ -36,6 +36,8 @@ public:
   static MaterialExtensionMessenger* GetMaterialExtensionMessenger();
   void SetNewValue(G4UIcommand*, G4String);
   bool GenerateOnly3g() { return fIsOnly3g; }
+  bool GenerateOnly5g() { return fIsOnly5g; }
+
 
 private:
   static MaterialExtensionMessenger* fInstance;
@@ -43,6 +45,7 @@ private:
   ~MaterialExtensionMessenger();
   G4UIdirectory* fDirectory = nullptr;
   MaterialExtension* fMaterial = nullptr;
+  G4UIcmdWithoutParameter* f5GammaOnly = nullptr;
   G4UIcmdWithoutParameter* f3GammaOnly = nullptr;
   G4UIcmdWithoutParameter* f3GammapPs = nullptr;
   G4UIcmdWithoutParameter* f2GammaOnly = nullptr;
@@ -50,8 +53,10 @@ private:
   G4UIcmdWithAString* fAddoPsComponent = nullptr;
   G4UIcmdWithAString* fSetpPsComponent = nullptr;
   G4UIcmdWithAString* fAddDirectComponent = nullptr;
+  G4UIcmdWithADouble* fSetpPs3GFraction = nullptr;
   G4UIcmdWithAString* fReloadMaterials = nullptr;
   bool fIsOnly3g = true;
+  bool fIsOnly5g = true;
 };
 
 #endif /* !MATERIALEXTENSIONMESSENGER_H */

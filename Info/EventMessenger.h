@@ -39,6 +39,7 @@ public:
   bool ShowProgress() { return fShowProgress; }
   G4int GetPowerPrintStat() { return fPrintPower; }
   bool AddDatetime() { return fOutputWithDatetime; }
+  G4int AddOwnName() { return fOutputWithOwnName; }
   G4int GetMinRegMultiplicity() { return fMinRegisteredMultiplicity; }
   G4int GetMaxRegMultiplicity() { return fMaxRegisteredMultiplicity; }
   G4int GetExcludedMultiplicity() { return fExcludedMultiplicity; }
@@ -51,6 +52,7 @@ public:
   bool SaveSeed() { return fSaveRandomSeed; }
   bool Save2g() { return fSave2g; }
   bool Save3g() { return fSave3g; }
+  bool Save5g() { return fSave5g; }
   bool GetCreateDecayTreeFlag() { return fCreateDecayTreeFlag; }
 
 private:
@@ -62,6 +64,7 @@ private:
   G4UIcmdWithABool* fPrintStat = nullptr;
   G4UIcmdWithABool* fPrintStatBar = nullptr;
   G4UIcmdWithABool* fAddDatetime = nullptr;
+  G4UIcmdWithAnInteger* fAddOwnName = nullptr;
   G4UIcmdWithABool* fCMDKillEventsEscapingWorld = nullptr;
   G4UIcmdWithAnInteger* fPrintStatPower = nullptr;
   G4UIcmdWithAnInteger* fCMDMinRegMulti = nullptr;
@@ -74,12 +77,14 @@ private:
   G4UIcmdWithADoubleAndUnit* fCMDAppliedRangeCut  = nullptr;
   G4UIcmdWithABool* fCMDSave2g = nullptr;
   G4UIcmdWithABool* fCMDSave3g = nullptr;
+  G4UIcmdWithABool* fCMDSave5g = nullptr;
   G4UIcmdWithABool* fCreateDecayTree = nullptr;
   
   bool fPrintStatistics = false;
   G4int fPrintPower = 10;
   bool fShowProgress = false;
   bool fOutputWithDatetime = false;
+  G4int fOutputWithOwnName = 0;
   bool fKillEventsEscapingWorld = false;
   G4int fMinRegisteredMultiplicity = 0;
   G4int fMaxRegisteredMultiplicity = 10;
@@ -93,6 +98,7 @@ private:
   G4double fRangeCut  = 1 * mm;
   bool fSave2g = false;
   bool fSave3g = false;
+  bool fSave5g = false;
   bool fCreateDecayTreeFlag = false;
 };
 

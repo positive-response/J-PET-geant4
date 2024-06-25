@@ -3,7 +3,19 @@
 ################################################################################
 
 cmake_minimum_required (VERSION 2.6)
-project(jpet_mc)
+project(jpet_mc LANGUAGES CXX)
+
+################################################################################
+## Det default build type to "Release"
+set(default_build_type "Release")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+      STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
@@ -27,7 +39,6 @@ endforeach()
 
 list(APPEND FOLDERS ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib)
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wunused-parameter -lboost_system")
 
 ################################################################################
 ## Project version number
@@ -46,6 +57,7 @@ set(SCRIPT_FILES
   run6.mac
   run7.mac
   nema.mac
+  cosmics.mac
   init_vis.mac
   singleBeam.mac
   extendedSource.mac
@@ -88,13 +100,18 @@ endif()
 ## Include GEANT4 WITH VIS DRIVERS
 ## remember to compile geant4 with following flags
 ## -DGEANT4_USE_QT=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_USE_GDML=ON
-find_package(Geant4 REQUIRED ui_all vis_all)
+set(GEANT4_LINK_OPTIONS "")
+if(LINK_STATIC_GEANT4)
+  set(GEANT4_LINK_OPTIONS static)
+  message(STATUS "Linking statically to Geant4 libraries.")
+endif()
+
+find_package(Geant4 REQUIRED ${GEANT4_LINK_OPTIONS} ui_all vis_all)
 include(${Geant4_USE_FILE})
 
 ################################################################################
-## Include CADMesh
-find_package(cadmesh REQUIRED)
-include_directories(SYSTEM ${CADMESH_INCLUDE_DIRS})
+## Include header-only CADMesh library
+include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/CADMesh/)
 
 ################################################################################
 ## Include Boost
@@ -122,6 +139,9 @@ if(NOT TARGET Boost::filesystem)
         INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES})
 endif()
 
+include_directories(${Boost_INCLUDE_DIRS})
+add_definitions(${Boost_DEFINITIONS})
+link_directories(${Boost_LIBRARY_DIRS})
 ################################################################################
 ## Include ROOT
 find_package(ROOT REQUIRED)
@@ -131,10 +151,9 @@ if(ROOT_FOUND AND ROOT_VERSION VERSION_LESS "6.0")
   # tested version above 6.10 can not display graphics while /run/beamOn due to llvm problem
 endif()
 
-set(ROOT_CXX_FLAGS "-std=c++11 -Wunused-parameter")
 include(${ROOT_USE_FILE})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 include_directories(SYSTEM ${Geant4_INCLUDE_DIR} ${ROOT_INCLUDE_DIR})
 
 ################################################################################
@@ -142,6 +161,7 @@ include_directories(SYSTEM ${Geant4_INCLUDE_DIR} ${ROOT_INCLUDE_DIR})
 ROOT_GENERATE_DICTIONARY(
   JPetMCClasses
   Objects/Framework/JPetGeantEventInformation.h
+  Objects/Framework/JPetGeantDecayTreeBranch.h
   Objects/Framework/JPetGeantDecayTree.h
   Objects/Framework/JPetGeantEventPack.h
   Objects/Framework/JPetGeantScinHits.h
@@ -153,6 +173,7 @@ add_library(
   JPetMCClassesDict
   SHARED
   Objects/Framework/JPetGeantEventInformation.cpp
+  Objects/Framework/JPetGeantDecayTreeBranch.cpp
   Objects/Framework/JPetGeantDecayTree.cpp
   Objects/Framework/JPetGeantEventPack.cpp
   Objects/Framework/JPetGeantScinHits.cpp
@@ -163,13 +184,17 @@ target_link_libraries(JPetMCClassesDict ${ROOT_LIBRARIES})
 ################################################################################
 ## Create a main program using the library
 add_executable(jpet_mc JPetMC.cpp ${SOURCES})
+
+# needed to suppress warnings about ROOT's locals
+#  shadowing Geant4's global variables
+target_compile_options(jpet_mc PRIVATE -Wno-shadow)
+
 target_link_libraries(
-  jpet_mc
-  ${Geant4_LIBRARIES}
+  jpet_mc 
   ${ROOT_LIBRARIES}
+  ${Geant4_LIBRARIES}
   JPetMCClassesDict
-  ${cadmesh_LIBRARIES}
-)
+  )
 
 ## Copy script files to bin directory
 foreach(file_i ${SCRIPT_FILES})
@@ -208,3 +233,4 @@ add_custom_command(
   ${CMAKE_CURRENT_SOURCE_DIR}/docs/manual_v4.pdf
   ${CMAKE_CURRENT_BINARY_DIR}/bin
 )
+

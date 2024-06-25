@@ -55,11 +55,17 @@ EventMessenger::EventMessenger()
   fCMDSave3g = new G4UIcmdWithABool("/jpetmc/event/save3g",this);
   fCMDSave3g->SetGuidance("Events with registered 3g will be saved (default false)");
 
+  fCMDSave5g = new G4UIcmdWithABool("/jpetmc/event/save5g",this);
+  fCMDSave5g->SetGuidance("Events with registered 5g will be saved (default false)");
+
   fPrintStatBar = new G4UIcmdWithABool("/jpetmc/event/ShowProgress", this);
   fPrintStatBar->SetGuidance("Print how many events was generated (in %)");
 
   fAddDatetime = new G4UIcmdWithABool("/jpetmc/output/AddDatetime", this);
   fAddDatetime->SetGuidance("Adds to the output file name date and time of simulation start.");
+
+  fAddOwnName = new G4UIcmdWithAnInteger("/jpetmc/output/AddOwnName", this);
+  fAddOwnName->SetGuidance("Adds own name to the output file along with name date and time of simulation start.");
 
   fSetSeed = new G4UIcmdWithAnInteger("/jpetmc/SetSeed", this);
   fSetSeed->SetGuidance("Use specific seed. If 0 provided seed will be random.");
@@ -93,6 +99,7 @@ EventMessenger::~EventMessenger()
   delete fPrintStatPower;
   delete fPrintStatBar;
   delete fAddDatetime;
+  delete fAddOwnName;
   delete fSetSeed;
   delete fSaveSeed;
   delete fCMDKillEventsEscapingWorld;
@@ -103,6 +110,7 @@ EventMessenger::~EventMessenger()
   delete fCMDAppliedRangeCut;
   delete fCMDSave2g;
   delete fCMDSave3g;
+  delete fCMDSave5g;
   delete fCreateDecayTree;
 }
 
@@ -120,6 +128,8 @@ void EventMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     fShowProgress = fPrintStatBar->GetNewBoolValue(newValue);
   } else if (command == fAddDatetime) {
     fOutputWithDatetime = fAddDatetime->GetNewBoolValue(newValue);
+  } else if (command == fAddOwnName) {
+    fOutputWithOwnName = fAddOwnName->GetNewIntValue(newValue);
   } else if (command == fCMDKillEventsEscapingWorld) {
     fKillEventsEscapingWorld = fCMDKillEventsEscapingWorld->GetNewBoolValue(newValue);
   } else if (command == fCMDExcludedMulti) {
@@ -142,5 +152,7 @@ void EventMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     fSave2g = fCMDSave2g->GetNewBoolValue(newValue);
   } else if (command == fCMDSave3g) {
     fSave3g = fCMDSave3g->GetNewBoolValue(newValue);
+  } else if (command == fCMDSave5g) {
+    fSave5g = fCMDSave5g->GetNewBoolValue(newValue);	
   }
 }
