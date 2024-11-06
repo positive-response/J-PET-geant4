@@ -3,7 +3,7 @@
 ################################################################################
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(jpet_mc LANGUAGES CXX)
+project(jpet_mc LANGUAGES C CXX)
 
 ################################################################################
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
