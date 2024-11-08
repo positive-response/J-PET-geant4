@@ -1,0 +1,7 @@
+name: sif
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - conda-forge::singularity
+  - conda-forge::make
