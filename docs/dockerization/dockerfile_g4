@@ -30,7 +30,12 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 
 RUN conda config --add channels defaults && conda config --add channels conda-forge && conda update -n base conda && conda install -n base conda-libmamba-solver && conda config --set solver libmamba
 
-RUN cd /opt/ && git clone --single-branch --branch $JPET_G4_BRANCH https://github.com/JPETTomography/J-PET-geant4.git
+# Fetch the latest commit SHA for the branch to force re-cloning if there's a change
+RUN cd /opt/ && \
+    JPET_G4_COMMIT=$(git ls-remote https://github.com/JPETTomography/J-PET-geant4.git $JPET_G4_BRANCH | awk '{print $1}') && \
+    echo $JPET_G4_COMMIT && \
+    git clone --single-branch --branch $JPET_G4_BRANCH https://github.com/JPETTomography/J-PET-geant4.git
+
 RUN conda init && \
     /bin/bash && \ 
     conda env create --name jpet -f /opt/J-PET-geant4/setups/conda_env_g4v11-jpet.yml
