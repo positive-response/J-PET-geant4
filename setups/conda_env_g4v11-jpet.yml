@@ -2,7 +2,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - geant4=11.0.3
+  - geant4=11.2.2
   - root=6.28.0
   - traitlets=5.7.1
   - xerces-c=3.2.4
