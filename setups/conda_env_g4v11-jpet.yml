@@ -3,12 +3,12 @@ channels:
   - defaults
 dependencies:
   - geant4=11.2.2
-  - root=6.28.0
+  - root=6.32.2
   - traitlets=5.7.1
-  - xerces-c=3.2.4
+  - xerces-c=3.2.5
   - libffi=3.4.4
-  - gxx=11.3.0
-  - cmake=3.29.3
-  - boost-cpp=1.78.0
+  - gxx=12.4.0
+  - cmake=3.29.5
+  - boost-cpp=1.82.0
   - pthread-stubs=0.4
   - doxygen=1.10.0

@@ -22,21 +22,21 @@ RUN DEBIAN_FRONTEND=noninteractive && \
   apt-get install -y zlib1g-dev && \
   apt-get install -y ca-certificates && \
   wget --no-check-certificate https://repo.anaconda.com/miniconda/Miniconda3-py310_23.9.0-0-Linux-x86_64.sh -O /opt/miniconda.sh && \
-  /bin/bash /opt/miniconda.sh -b -p /opt/conda \
+  /bin/bash /opt/miniconda.sh -b -p /opt/conda; \
   rm /opt/miniconda.sh
 
-ENV CONDA_DIR /opt/conda
+ENV CONDA_DIR=/opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
 
-RUN conda update -n base conda && conda install -n base conda-libmamba-solver && conda config --set solver libmamba
+RUN conda config --add channels defaults && conda config --add channels conda-forge && conda update -n base conda && conda install -n base conda-libmamba-solver && conda config --set solver libmamba
 
 RUN cd /opt/ && git clone --single-branch --branch $JPET_G4_BRANCH https://github.com/JPETTomography/J-PET-geant4.git
-# RUN conda init && \
-#     /bin/bash && \ 
-#     conda env create --name jpet -f /opt/J-PET-geant4/setups/conda_env_g4v11-jpet.yml
+RUN conda init && \
+    /bin/bash && \ 
+    conda env create --name jpet -f /opt/J-PET-geant4/setups/conda_env_g4v11-jpet.yml
 
-# RUN conda activate jpet && cd /opt/J-PET-geant4 && /bin/bash setups/init_submodules.sh \
-#     mkdir build && cd build && cmake ../ -DMT=ON; make -j2
+RUN conda activate jpet && cd /opt/J-PET-geant4 && /bin/bash setups/init_submodules.sh \
+    mkdir build && cd build && cmake ../ -DMT=ON; make -j2
 
 # RUN cd /opt/geant4-data && \
 #     wget --no-check-certificate https://cern.ch/geant4-data/datasets/G4NDL.4.7.tar.gz; tar -xzvf G4NDL.4.7.tar.gz; rm G4NDL.4.7.tar.gz && \
