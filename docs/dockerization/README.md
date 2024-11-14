@@ -4,7 +4,6 @@
 
 ## Building the docker image with J-PET s/w
 
-Currently, the base image is the `brachwal/ubuntu-g4:22.04-11.1.3-jpet` which contains basic directory structure and the conda env yml file.
 In order to build an image, run from the directory where dockerfile is placed, or put the full path to it. For this repo the dockerfile is named `dockerfile_g4`:
 ```
 docker build -f dockerfile_g4 --tag 'ubuntu-g4:22.04-11.1.3-plgrid' .
