@@ -32,6 +32,12 @@ MaterialExtensionMessenger::MaterialExtensionMessenger()
   fDirectory = new G4UIdirectory("/jpetmc/material/");
   fDirectory->SetGuidance("Commands for controling the geometry materials");
 
+  f4GammaOnly = new G4UIcmdWithoutParameter("/jpetmc/material/fourGammaOnly", this);
+  f4GammaOnly->SetGuidance("Only 4 gamma events will be generated (lifetime as for pPs)");
+
+  f4GammaoPs = new G4UIcmdWithoutParameter("/jpetmc/material/fourGammaoPs", this);
+  f4GammaoPs->SetGuidance("Only 4 gamma events will be generated (lifetime as for oPs)");
+
   f3GammaOnly = new G4UIcmdWithoutParameter("/jpetmc/material/threeGammaOnly", this);
   f3GammaOnly->SetGuidance("Only 3 gamma events will be generated (lifetime as for oPs)");
 
@@ -62,6 +68,8 @@ MaterialExtensionMessenger::MaterialExtensionMessenger()
 
 MaterialExtensionMessenger::~MaterialExtensionMessenger()
 {
+  delete f4GammaOnly;
+  delete f4GammaoPs;
   delete f3GammaOnly;
   delete f3GammapPs;
   delete f2GammaOnly;
@@ -75,7 +83,11 @@ MaterialExtensionMessenger::~MaterialExtensionMessenger()
 
 void MaterialExtensionMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-  if (command == f3GammaOnly) {
+  if (command == f4GammaoPs) {
+    MaterialParameters::SetAnnihilationMode("oPs4G");
+  } else if (command == f4GammaOnly) {
+    MaterialParameters::SetAnnihilationMode("pPs4G");
+  } else if (command == f3GammaOnly) {
     MaterialParameters::SetAnnihilationMode("oPs3G");
   } else if (command == f3GammapPs) {
     MaterialParameters::SetAnnihilationMode("pPs3G");

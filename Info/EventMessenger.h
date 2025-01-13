@@ -51,6 +51,7 @@ public:
   bool SaveSeed() { return fSaveRandomSeed; }
   bool Save2g() { return fSave2g; }
   bool Save3g() { return fSave3g; }
+  bool Save4g() { return fSave4g; }
   bool GetCreateDecayTreeFlag() { return fCreateDecayTreeFlag; }
 
 private:
@@ -74,6 +75,7 @@ private:
   G4UIcmdWithADoubleAndUnit* fCMDAppliedRangeCut  = nullptr;
   G4UIcmdWithABool* fCMDSave2g = nullptr;
   G4UIcmdWithABool* fCMDSave3g = nullptr;
+  G4UIcmdWithABool* fCMDSave4g = nullptr;
   G4UIcmdWithABool* fCreateDecayTree = nullptr;
   
   bool fPrintStatistics = false;
@@ -93,6 +95,7 @@ private:
   G4double fRangeCut  = 1 * mm;
   bool fSave2g = false;
   bool fSave3g = false;
+  bool fSave4g = false;
   bool fCreateDecayTreeFlag = false;
 };
 

@@ -28,6 +28,7 @@ public:
   void Clear();
   virtual void Print() const;
 
+  void SetFourGammaGen(G4bool tf) { fFourGammaGen = tf; };
   void SetThreeGammaGen(G4bool tf) { fThreeGammaGen = tf; };
   void SetTwoGammaGen(G4bool tf) { fTwoGammaGen = tf; };
   void SetPromptGammaGen(G4bool tf) { fPromptGammaGen = tf; };
@@ -36,6 +37,7 @@ public:
   void SetVtxPosition(G4ThreeVector position);
   void SetVtxPosition(G4double x, G4double y, G4double z);
   void SetLifetime(G4double x) { fLifetime = x; };
+  G4bool GetFourGammaGen() { return fFourGammaGen; };
   G4bool GetThreeGammaGen() { return fThreeGammaGen; };
   G4bool GetTwoGammaGen() { return fTwoGammaGen; };
   G4bool GetPromptGammaGen() { return fPromptGammaGen; };
@@ -50,6 +52,7 @@ private:
   G4ThreeVector fVtxPosition;
   G4bool fTwoGammaGen;
   G4bool fThreeGammaGen;
+  G4bool fFourGammaGen;
   G4bool fPromptGammaGen;
   G4bool fCosmicGen;
   G4int fnRun;

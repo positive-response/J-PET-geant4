@@ -34,6 +34,7 @@ public:
   ~JPetGeantEventInformation();
 
   void Clear(Option_t* = "");
+  void SetFourGammaGen(bool tf) { fGenGammaNum.SetBitNumber(3, tf); };
   void SetThreeGammaGen(bool tf) { fGenGammaNum.SetBitNumber(2, tf); };
   void SetTwoGammaGen(bool tf) { fGenGammaNum.SetBitNumber(1, tf); };
   void SetPromptGammaGen(bool tf) { fGenGammaNum.SetBitNumber(0, tf); };
@@ -42,6 +43,7 @@ public:
   void SetVtxPromptPosition(double x, double y, double z) { fVtxPromptPosition.SetXYZ(x, y, z); };
   void SetLifetime(double x) { fLifetime = x; };
   void SetPromptLifetime(double x) { fPromptLifetime = x; };
+  bool GetFourGammaGen() const { return fGenGammaNum.TestBitNumber(3); };
   bool GetThreeGammaGen() const { return fGenGammaNum.TestBitNumber(2); };
   bool GetTwoGammaGen() const { return fGenGammaNum.TestBitNumber(1); };
   bool GetPromptGammaGen() const { return fGenGammaNum.TestBitNumber(0); };
@@ -65,7 +67,7 @@ public:
   bool getCosmicEventTag() const { return fCosmicEventTag; };
 
 private:
-  const unsigned int fMaxGammaNumberIndex = 3;
+  const unsigned int fMaxGammaNumberIndex = 4;
   //! Position of annihilation
   TVector3 fVtxPosition;
   //! Position of prompt photon emmision

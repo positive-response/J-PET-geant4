@@ -42,6 +42,7 @@ public:
   virtual void EndOfEventAction(const G4Event* anEvent);
   bool Is2gRegistered();
   bool Is3gRegistered();
+  bool Is4gRegistered();
 
 private:
   HistoManager* fHistoManager = nullptr;
@@ -51,9 +52,12 @@ private:
 
   bool is2gRec;
   bool is3gRec;
+  bool is4gRec;
   int fEventID;
+  void CheckIf4gIsRegistered(const G4Event* anEvent);
   void CheckIf3gIsRegistered(const G4Event* anEvent);
   void CheckIf2gIsRegistered(const G4Event* anEvent);
+
 
 };
 

@@ -36,6 +36,69 @@ PrimaryGenerator::PrimaryGenerator() : G4VPrimaryGenerator() {}
 
 PrimaryGenerator::~PrimaryGenerator() {}
 
+
+G4PrimaryVertex* PrimaryGenerator::GenerateFourGammaVertex( 
+  DecayChannel channel, const G4ThreeVector vtxPosition, 
+  const G4double T0, const G4double lifetime3g
+) {
+
+  G4PrimaryVertex* vertex_four = new G4PrimaryVertex();
+  VtxInformation* info = new VtxInformation();
+ 
+  G4double lifetime = G4RandExponential::shoot(lifetime3g);
+  info->SetFourGammaGen(true);
+  info->SetLifetime((T0 + lifetime));
+  info->SetVtxPosition(vtxPosition.x(), vtxPosition.y(), vtxPosition.z());
+  vertex_four->SetUserInformation(info);
+  vertex_four->SetT0(T0 + lifetime);
+  vertex_four->SetPosition(vtxPosition.x(), vtxPosition.y(), vtxPosition.z());
+  
+  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  G4ParticleDefinition* particleDefinition = particleTable->FindParticle("gamma");
+  Double_t mass_secondaries[4] = {0., 0., 0.,0.};
+
+  TGenPhaseSpace event;
+  TLorentzVector positonium(0.0, 0.0, 0.0, 1022 * keV);
+  Bool_t test = event.SetDecay(positonium, 4, mass_secondaries);
+  if (!test) {
+    G4cout << "error: generate_gamma : createFourHitEvts:" << test << G4endl;
+  }
+  event.Generate();
+/*
+  Double_t weight = 1;
+  Double_t weight_max = event.GetWtMax() * pow(10, -1);
+  Double_t rwt = 1;
+  Double_t M_max = 1;
+  //Manual how to obtain amplitude for the 3G decays are in the manual_v4.pdf in appendix section
+  if (channel == DecayChannel::kPara3G) {
+    M_max = 2.00967 * pow(10, 25);
+  } else {
+    M_max = 7.65928 * pow(10, -6);
+  }
+  do {
+    weight = event.Generate();
+    weight = weight * calculate_mQED( channel, 511., event.GetDecay(0)->E() / keV, event.GetDecay(1)->E() / keV, event.GetDecay(2)->E() / keV );
+    rwt = M_max * weight_max * (G4UniformRand());
+  } while (rwt > weight);
+*/
+  G4PrimaryParticle* particle_four[4];
+  for (int i = 0; i < 4; i++) {
+    TLorentzVector* out = event.GetDecay(i);
+    particle_four[i] = new G4PrimaryParticle(
+      particleDefinition, out->Px(), out->Py(), out->Pz(), out->E()
+    );
+    
+    PrimaryParticleInformation* infoParticle = new PrimaryParticleInformation();
+    infoParticle->SetGammaMultiplicity(PrimaryParticleInformation::koPsFourGamma);
+    infoParticle->SetGeneratedGammaMultiplicity(PrimaryParticleInformation::koPsFourGamma);
+    infoParticle->SetIndex(i + 1);
+    infoParticle->SetGenMomentum(out->Px(), out->Py(), out->Pz());
+    particle_four[i]->SetUserInformation(infoParticle);
+    vertex_four->SetPrimary(particle_four[i]); 
+  } 
+  return vertex_four;
+}
+
 G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex( 
   DecayChannel channel, const G4ThreeVector vtxPosition, 
   const G4double T0, const G4double lifetime3g
@@ -237,13 +300,20 @@ void PrimaryGenerator::GenerateEvtSmallChamber(
         ));
       fDecayChannel = DecayChannel::kDirect3G;
     } else {
+      // oPs 4G
+      event->AddPrimaryVertex(GenerateFourGammaVertex(
+        DecayChannel::kOrtho4G, vtxPosition, T0,
+        material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], DecayChannel::kOrtho4G)
+        ));
+      fDecayChannel = DecayChannel::kOrtho4G;
+    } /*else {
       // oPs 3G
       event->AddPrimaryVertex(GenerateThreeGammaVertex(
         DecayChannel::kOrtho3G, vtxPosition, T0,
         material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], DecayChannel::kOrtho3G)
         ));
       fDecayChannel = DecayChannel::kOrtho3G;
-    } 
+    } */
   }
 
   //Not all Na decays lead to the emission of prompt photon
@@ -355,14 +425,21 @@ void PrimaryGenerator::GenerateEvtLargeChamber(G4Event* event)
         material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3], DecayChannel::kDirect3G)
         ));
       fDecayChannel = DecayChannel::kDirect3G;
-    } else {
+    } /*else {
       // oPs 3G
       event->AddPrimaryVertex(GenerateThreeGammaVertex(
         DecayChannel::kOrtho3G, vtxPosition, T0,
         material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], DecayChannel::kOrtho3G)
         ));
       fDecayChannel = DecayChannel::kOrtho3G;
-    } 
+    }*/ else {
+      // oPs 4G
+      event->AddPrimaryVertex(GenerateFourGammaVertex(
+        DecayChannel::kOrtho4G, vtxPosition, T0,
+        material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], DecayChannel::kOrtho4G)
+        ));
+      fDecayChannel = DecayChannel::kOrtho4G;
+    }
   }
 
   //Not all Na decays lead to the emission of prompt photon

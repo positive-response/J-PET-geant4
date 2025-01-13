@@ -28,7 +28,7 @@
  */
 
 enum DecayChannel { 
-  kPara2G, kDirect2G, kOrtho2G, kPara3G, kDirect3G, kOrtho3G, kUnknown
+  kPara2G, kDirect2G, kOrtho2G, kPara3G, kDirect3G, kOrtho3G, kOrtho4G, kUnknown
 };
 
 class JPetGeantDecayTree : public TObject
@@ -66,7 +66,7 @@ private:
   TClonesArray fDecayTreeBranches;
   unsigned int fDecayTreeBranchesIndex = 0;
      
-  ClassDef(JPetGeantDecayTree,3)
+  ClassDef(JPetGeantDecayTree,4)
 
 };
 

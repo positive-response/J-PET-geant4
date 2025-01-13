@@ -89,7 +89,7 @@ G4double MaterialExtension::GetLifetime(double randNumber, DecayChannel channel)
 {
   if (channel == DecayChannel::kOrtho2G) {
     return fMaterialParameters->GetoPs2GLifetimeFromVector(randNumber);
-  } else if (channel == DecayChannel::kOrtho3G) {
+  } else if (channel == DecayChannel::kOrtho4G) {
     return fMaterialParameters->GetoPs3GLifetimeFromVector(randNumber);
   } else if (channel == DecayChannel::kPara2G || channel == DecayChannel::kPara3G) {
     return fMaterialParameters->GetpPsLifetime();
@@ -119,7 +119,7 @@ std::vector<G4double> MaterialExtension::GetEventsFraction() const
       frac = {0., 0., 1., 0., 0., 0.};
     } else if(MaterialParameters::fAnnihlationMode == "pPs3G") {
       frac = {0., 0., 0., 1., 0., 0.};
-    } else if (MaterialParameters::fAnnihlationMode == "oPs3G") {
+    } else if (MaterialParameters::fAnnihlationMode == "oPs4G") {
       frac = {0., 0., 0., 0., 0., 1.};
     } 
   } else {
@@ -129,8 +129,10 @@ std::vector<G4double> MaterialExtension::GetEventsFraction() const
     G4double pPs3G = fMaterialParameters->GetpPs3GTotalIntensity();
     G4double direct3g = fMaterialParameters->GetDirect3GTotalIntensity();
     G4double oPs3G = fMaterialParameters->GetoPs3GTotalIntensity();
+    G4double oPs4G = fMaterialParameters->GetoPs3GTotalIntensity();
+    G4double pPs4G = fMaterialParameters->GetpPs2GTotalIntensity();
   
-    frac = {pPs2G, direct2g, oPs2G, pPs3G, direct3g, oPs3G};
+    frac = {pPs2G, direct2g, oPs2G, pPs3G, direct3g, oPs4G};
   }
   return frac;
 }

@@ -16,7 +16,7 @@
 #include "VtxInformation.h"
 
 VtxInformation::VtxInformation() :
-fVtxPosition(0), fTwoGammaGen(false), fThreeGammaGen(false),
+fVtxPosition(0), fTwoGammaGen(false), fThreeGammaGen(false), fFourGammaGen(false),
 fPromptGammaGen(false), fCosmicGen(false), fnRun(0), fLifetime(0) {}
 
 VtxInformation::~VtxInformation() {}
@@ -37,6 +37,7 @@ void VtxInformation::Clear()
 {
   fTwoGammaGen = false;
   fThreeGammaGen = false;
+  fFourGammaGen = false;
   fPromptGammaGen = false;
   fCosmicGen = false;
   fnRun = 0;
