@@ -28,7 +28,7 @@
  */
 
 enum DecayChannel { 
-  kPara2G, kDirect2G, kOrtho2G, kPara3G, kDirect3G, kOrtho3G, jpgUnknown
+  kPara2G, kDirect2G, kOrtho2G, kPara3G, kDirect3G, kOrtho3G, kOrtho4G, jpgUnknown
 };
 
 class JPetGeantDecayTree : public TObject

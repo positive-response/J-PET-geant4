@@ -31,10 +31,10 @@
 
 int EventAction::EvtMultCut = -1;
 
-EventAction::EventAction() : is2gRec(false), is3gRec(false), fEventID(0)
+EventAction::EventAction() : is2gRec(false), is3gRec(false),  is4gRec(false), fEventID(0)
 {}
 
-EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), fEventID(0)
+EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false),  is4gRec(false), fEventID(0)
 {}
 
 EventAction::~EventAction() {}
@@ -64,6 +64,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
 
   CheckIf2gIsRegistered(anEvent);
   CheckIf3gIsRegistered(anEvent);
+  CheckIf4gIsRegistered(anEvent);
 
   if (fEvtMessenger->Save2g()) {
     CheckIf2gIsRegistered(anEvent);
@@ -75,6 +76,13 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
   if (fEvtMessenger->Save3g()) {
     CheckIf3gIsRegistered(anEvent);
     if ( ! Is3gRegistered() ) {
+      G4RunManager::GetRunManager()->AbortEvent();
+    }
+  }
+
+  if (fEvtMessenger->Save4g()) {
+    CheckIf4gIsRegistered(anEvent);
+    if ( ! Is4gRegistered() ) {
       G4RunManager::GetRunManager()->AbortEvent();
     }
   }
@@ -161,6 +169,49 @@ bool EventAction::Is3gRegistered()
 {
   return is3gRec;
 }
+
+bool EventAction::Is4gRegistered()
+{
+  return is4gRec;
+}
+
+void EventAction::CheckIf4gIsRegistered(const G4Event* anEvent)
+{
+  bool isGenerated = false;
+  bool isReconstructed = true;
+  is4gRec = false;
+  std::vector<bool> isGammaRec{false,false,false,false, false};
+
+  for (int i=0; i<anEvent->GetNumberOfPrimaryVertex(); i++) {
+    VtxInformation* info =  dynamic_cast<VtxInformation*>(anEvent->GetPrimaryVertex(i)->GetUserInformation());    
+    if (info != nullptr) {
+      isGenerated = isGenerated || info->GetFourGammaGen();
+    }
+  }
+
+  if (!isGenerated) { return; }
+
+  G4HCofThisEvent * HCE = anEvent->GetHCofThisEvent();
+  DetectorHitsCollection* DHC = 0;
+  if (HCE) {
+    DHC = dynamic_cast<DetectorHitsCollection*>(HCE->GetHC(fScinCollID));
+    int n_hit = DHC->entries();
+    if (n_hit<4) return;
+
+    for (int i=0; i<n_hit; i++) {
+       DetectorHit* dh =  dynamic_cast<DetectorHit*>(DHC->GetHit(i));
+       if (dh->GetGenGammaMultiplicity() == 4) {
+         isGammaRec[dh->GetGenGammaIndex()] = true;
+       }
+    }
+  }
+
+  for(int i=1; i<=4; i++) {
+    isReconstructed = isReconstructed && isGammaRec[i];
+  }
+  is4gRec = isReconstructed;
+}
+
 
 void EventAction::CheckIf3gIsRegistered(const G4Event* anEvent)
 {

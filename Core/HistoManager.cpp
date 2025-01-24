@@ -282,6 +282,11 @@ void HistoManager::BookHistograms()
   );
 
   createHistogramWithAxes(
+    new TH2D("gen_4g_angles", "Generated angles of 4g after sorting. ", 720*2, -0.5, 719.5, 400, -0.5, 189.5),
+    "#Theta_{1 + 2 + 3} [degree]", "#Theta_{4} [degree]"
+  );
+
+  createHistogramWithAxes(
     new TH2D("gen_energy", "Generated energy of 3g. Bin size: 5 keV x 5 keV", 120, -2.5, 597.5, 120, -2.5, 597.5),
     "E_1 [keV]", "E_2 [keV]"
   );
@@ -355,7 +360,16 @@ void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
 
   double theta_12 = (180. / TMath::Pi()) * (fGeantInfo->GetMomentumGamma(1)).Angle(fGeantInfo->GetMomentumGamma(2));
   double theta_23 = (180. / TMath::Pi()) * (fGeantInfo->GetMomentumGamma(2)).Angle(fGeantInfo->GetMomentumGamma(3));
+  double theta_34 = (180. / TMath::Pi()) * (fGeantInfo->GetMomentumGamma(3)).Angle(fGeantInfo->GetMomentumGamma(4));
+  double theta_41 = (180. / TMath::Pi()) * (fGeantInfo->GetMomentumGamma(4)).Angle(fGeantInfo->GetMomentumGamma(1));
 
+  std::vector<double> angles = {theta_12, theta_23, theta_34, theta_41};
+  std::sort(angles.begin(), angles.end());
+
+  double t1 =  angles[0] + angles[1] + angles[2];
+  double t2 =  angles[3];
+  
+  fillHistogram("gen_4g_angles",t1, doubleCheck(t2));
   fillHistogram("gen_3g_angles", theta_12, doubleCheck(theta_23));
   fillHistogram("gen_energy", fGeantInfo->GetMomentumGamma(1).Mag(), doubleCheck(fGeantInfo->GetMomentumGamma(2).Mag()));
 }
@@ -387,12 +401,14 @@ void HistoManager::AddGenInfoParticles(G4PrimaryParticle* particle)
  */
 void HistoManager::AddGenInfo(VtxInformation* info)
 {
+  bool is4g = info->GetFourGammaGen();
   bool is3g = info->GetThreeGammaGen();
   bool is2g = info->GetTwoGammaGen();
   bool isPrompt = info->GetPromptGammaGen();
   bool isCosmic = info->GetCosmicGammaGen();
 
-  if (is2g || is3g) {
+  if (is2g || is3g || is4g) {
+    fGeantInfo->SetFourGammaGen(is4g);
     fGeantInfo->SetThreeGammaGen(is3g);
     fGeantInfo->SetTwoGammaGen(is2g);
     fGeantInfo->SetVtxPosition(info->GetVtxPositionX() / cm, info->GetVtxPositionY() / cm, info->GetVtxPositionZ() / cm);
@@ -407,6 +423,10 @@ void HistoManager::AddGenInfo(VtxInformation* info)
       if (is3g) {
         fillHistogram("gen_gamma_multiplicity", 3);
         fillHistogram("gen_gamma_multiplicity_vs_lifetime", 3, doubleCheck(info->GetLifetime() / ps));
+      }
+      if (is4g) {
+        fillHistogram("gen_gamma_multiplicity", 4);
+        fillHistogram("gen_gamma_multiplicity_vs_lifetime", 4, doubleCheck(info->GetLifetime() / ps));
       }
       fillHistogram("gen_lifetime", info->GetLifetime() / ps);
       fillHistogram("gen_XY", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionY() / cm));

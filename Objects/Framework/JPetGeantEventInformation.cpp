@@ -20,7 +20,7 @@ ClassImp(JPetGeantEventInformation)
 
 JPetGeantEventInformation::JPetGeantEventInformation() :
 fVtxPosition(0, 0, 0), fVtxPromptPosition(0, 0, 0), fGenGammaNum(fMaxGammaNumberIndex),
-fnRun(0), fLifetime(0), fPromptLifetime(0), fMomentumGamma(4), fCosmicEventTag(false) {
+fnRun(0), fLifetime(0), fPromptLifetime(0), fMomentumGamma(5), fCosmicEventTag(false) {
   // NOTE: ROOT has a special class, called TObjectTable, 
   // which optionally keeps track of any object that inherits from TObject.
   // To get rid of ROOT garbage collector issues, we need to remove this object from the table
@@ -38,6 +38,6 @@ void JPetGeantEventInformation::Clear(Option_t*)
   fVtxPosition.SetXYZ(0, 0, 0);
   fVtxPromptPosition.SetXYZ(0.0, 0.0, 0.0);
   fMomentumGamma.clear();
-  fMomentumGamma.resize(4);
+  fMomentumGamma.resize(5);
   fCosmicEventTag = false;
 }

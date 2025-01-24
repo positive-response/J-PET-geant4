@@ -172,7 +172,7 @@ G4int DetectorConstruction::getNumberOfScintillators()
 {
   if (fLoadModularLayer)
   {
-    return 504;
+    return 512;
   }
   else if (fReadJSONSetup)
   {
