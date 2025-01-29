@@ -14,12 +14,13 @@
  */
 
 #include "DetectorConstruction.h"
-#include "DetectorConstructionMessenger.h"
 #include "DetectorConstants.h"
+#include "DetectorConstructionMessenger.h"
 #include "MaterialExtension.h"
 #include "MaterialParameters.h"
 #include "RunManager.h"
 
+#include <CADMesh.hh>
 #include <G4LogicalVolumeStore.hh>
 #include <G4PhysicalVolumeStore.hh>
 #include <G4Polycone.hh>
@@ -37,12 +38,12 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#include <CADMesh.hh>
 
 namespace pt = boost::property_tree;
 
-namespace {
-  G4Mutex detectorConstructionMutex = G4MUTEX_INITIALIZER;
+namespace
+{
+G4Mutex detectorConstructionMutex = G4MUTEX_INITIALIZER;
 }
 
 DetectorConstruction* DetectorConstruction::fInstance = 0;
@@ -172,7 +173,7 @@ G4int DetectorConstruction::getNumberOfScintillators()
 {
   if (fLoadModularLayer)
   {
-    return 504;
+    return 512;
   }
   else if (fReadJSONSetup)
   {
@@ -410,7 +411,7 @@ void DetectorConstruction::ConstructScintillators()
         G4VSolid* unionSolid = new G4SubtractionSolid("wrapping", wrappingBox, scinBoxFree);
         wrappingLog = new G4LogicalVolume(unionSolid, fKapton, "wrappingLogical");
         wrappingLog->SetVisAttributes(boxVisAttWrapping);
-        
+
         G4String nameWrapping = "wrapping_" + G4UIcommand::ConvertToString(fMaxScinID);
         new G4PVPlacement(transform, wrappingLog, nameWrapping, fWorldLogical, true, fMaxScinID, checkOverlaps);
       }
