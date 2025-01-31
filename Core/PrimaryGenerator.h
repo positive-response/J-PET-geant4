@@ -54,7 +54,7 @@ public:
   DecayChannel GetDecayChannel() { return fDecayChannel; };
 
 private:
-  DecayChannel fDecayChannel = DecayChannel::jpgUnknown;
+  DecayChannel fDecayChannel = DecayChannel::kUnknown;
   //! return: vtx position, 2/3g ratio, meanlifetime;
   //! as input the maximal dimension(/2) of annihilation chamber are taken (to speed up simulatons)
   std::tuple<G4ThreeVector, MaterialExtension*> GetVerticesDistributionInFilledSphere(
@@ -63,6 +63,10 @@ private:
   std::tuple<G4ThreeVector, MaterialExtension*> GetVerticesDistributionAlongStepVector(
     const G4ThreeVector center, const G4ThreeVector direction
   );
+  std::tuple<G4ThreeVector, MaterialExtension*> GetVerticesDistributionAlongStepVectorExponential(
+    const G4ThreeVector center, const G4ThreeVector direction
+  );
+  G4ThreeVector GenerateNemaVertex(G4int phantomElementID, G4ThreeVector boxCoveringElement);
   G4PrimaryVertex* GenerateTwoGammaVertex(
     const G4ThreeVector vtxPosition, const G4double T0, const G4double lifetime2g
   );
@@ -82,9 +86,9 @@ private:
   );
   const G4ThreeVector GetRandomPointInFilledSphere(G4double radius);
   const G4ThreeVector GetRandomPointOnSphere(G4double radius);
+  const G4ThreeVector GetRandomPointInFilledExpo3D(G4double reach);
   
-  G4Navigator* theNavigator =  G4TransportationManager::GetTransportationManager()
-  ->GetNavigatorForTracking();
+  G4Navigator* theNavigator =  G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
 };
 
 #endif /* !PRIMARYGENERATOR_H */
