@@ -440,6 +440,7 @@ void PrimaryGenerator::GenerateEvtLargeChamber(G4Event* event)
         ));
       fDecayChannel = DecayChannel::kOrtho4G;
     }
+    
   }
 
   //Not all Na decays lead to the emission of prompt photon

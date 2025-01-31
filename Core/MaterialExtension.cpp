@@ -89,7 +89,7 @@ G4double MaterialExtension::GetLifetime(double randNumber, DecayChannel channel)
 {
   if (channel == DecayChannel::kOrtho2G) {
     return fMaterialParameters->GetoPs2GLifetimeFromVector(randNumber);
-  } else if (channel == DecayChannel::kOrtho4G) {
+  } else if (channel == DecayChannel::kOrtho4G || channel == DecayChannel::kOrtho3G) {
     return fMaterialParameters->GetoPs3GLifetimeFromVector(randNumber);
   } else if (channel == DecayChannel::kPara2G || channel == DecayChannel::kPara3G) {
     return fMaterialParameters->GetpPsLifetime();

@@ -155,6 +155,12 @@ void HistoManager::SaveEvtPack()
 
 void HistoManager::BookHistograms()
 {
+ 
+  createHistogramWithAxes(
+    new TH1D( "gen_dist_to_plane", "Distance of plane formed by 3 phtons from the centre. Bin size: 1 cm", 200, 0, 20),
+    "DOP[cm]", "Entries"
+  );
+
   createHistogramWithAxes(
     new TH1D("gen_gamma_multiplicity", "Generated gammas multiplicity. Bin size: 1", 10, -0.5, 9.5),
     "Gamma quanta multiplicity: 1=prompt; 2=2g; 3=3g", "Entries"
@@ -234,25 +240,25 @@ void HistoManager::BookHistograms()
     new TH2D("gen_prompt_YZ", "Generated YZ coordinates of annihilation point. Bin size: 0.1 cm x 0.1 cm", 
              500, -24.95, 25.05, 1200, -59.95, 60.05), "Prompt emission point Y [cm]", "Prompt emission point Z [cm]"
   );
-
+//190, -0.5, 189.5, 190, -0.5, 189.5
   createHistogramWithAxes(
-    new TH2D("gen_3g_angles", "Generated angles of 3g. Bin size: 1 deg x 1 deg", 190, -0.5, 189.5, 190, -0.5, 189.5),
+    new TH2D("gen_3g_angles", "Generated angles of 3g.", 800, -0.5, 2*189.5, 800, -0.5, 2*189.5),
     "#Theta_{12} [degree]", "#Theta_{23} [degree]"
   );
 
   createHistogramWithAxes(
-    new TH2D("gen_4g_angles", "Generated angles of 4g. Bin size: 1 deg x 1 deg", 720, -0.5, 719.5, 720, -0.5, 719.5),
-    "#Theta_{12 + 23} [degree]", "#Theta_{34 + 41} [degree]"
+    new TH2D("gen_4g_angles", "Generated angles of 4g after sorting. ", 720*2, -0.5, 719.5, 400, -0.5, 189.5),
+    "#Theta_{1 + 2 + 3} [degree]", "#Theta_{4} [degree]"
   );
 
 
   createHistogramWithAxes(
-    new TH2D("gen_energy", "Generated energy of 3g. Bin size: 5 keV x 5 keV", 120, -2.5, 597.5, 120, -2.5, 597.5),
-    "E_1 [keV]", "E_2 [keV]"
+    new TH2D("gen_energy", "Generated energy of 3g.", 500, -2.5, 2*597.5, 500, -2.5, 597.5),
+    "E_1 + E_2 [keV]", "E_3 [keV]"
   );
 
   createHistogramWithAxes(
-    new TH1D("gen_g_ene", "Generated energy. Bin size: 5 keV", 300, -2.5, 1497.5),
+    new TH1D("gen_g_ene", "Generated energy.", 600, -2.5, 1497.5/2),
     "E_1 generated [keV]", "Entries"
   );
 
@@ -302,6 +308,9 @@ void HistoManager::BookHistograms()
   );
 }
 
+
+
+
 void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
 {
   for (int i = 0; i < anEvent->GetNumberOfPrimaryVertex(); i++) {
@@ -326,14 +335,49 @@ void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
   std::vector<double> angles = {theta_12, theta_23, theta_34, theta_41};
   std::sort(angles.begin(), angles.end());
 
-  double t1 =  angles[0] + angles[1];
-  double t2 =  angles[2] + angles[3];
+  double t1 =  angles[0] + angles[1] + angles[2];
+  double t2 =  angles[3];
 
-  fillHistogram("gen_3g_angles", theta_12, doubleCheck(theta_23));
+  fillHistogram("gen_3g_angles", abs(angles[0]-angles[1]), doubleCheck((angles[3]-angles[2])));
   fillHistogram("gen_4g_angles",t1, doubleCheck(t2));
 
-  fillHistogram("gen_energy", fGeantInfo->GetMomentumGamma(1).Mag(), doubleCheck(fGeantInfo->GetMomentumGamma(2).Mag()));
+  fillHistogram("gen_energy", abs(fGeantInfo->GetMomentumGamma(1).Mag() + fGeantInfo->GetMomentumGamma(2).Mag()),
+   doubleCheck(abs(fGeantInfo->GetMomentumGamma(3).Mag())));
 
+  fillHistogram("gen_g_ene",fGeantInfo->GetMomentumGamma(1).Mag());
+  fillHistogram("gen_g_ene",fGeantInfo->GetMomentumGamma(2).Mag());
+  fillHistogram("gen_g_ene",fGeantInfo->GetMomentumGamma(3).Mag());
+  fillHistogram("gen_g_ene",fGeantInfo->GetMomentumGamma(4).Mag());
+  
+
+  TVector3 firstHit = fGeantInfo->GetMomentumGamma(1);
+  TVector3 secondHit = fGeantInfo->GetMomentumGamma(2);
+  TVector3 thirdHit = fGeantInfo->GetMomentumGamma(3);
+  TVector3 fourthHit = fGeantInfo->GetMomentumGamma(4);
+
+  double dist123 = calcDistPlane(firstHit, secondHit,thirdHit);
+  double dist234 = calcDistPlane(secondHit,thirdHit, fourthHit);
+  double dist341 = calcDistPlane(thirdHit, fourthHit, firstHit);
+  double dist412 = calcDistPlane(fourthHit, firstHit, secondHit);
+
+  fillHistogram("gen_dist_to_plane", dist123/cm);
+  fillHistogram("gen_dist_to_plane", dist234/cm);
+  fillHistogram("gen_dist_to_plane", dist341/cm);
+  fillHistogram("gen_dist_to_plane", dist412/cm);
+ //fillHistogram("gen_dist_to_plane", 1);
+
+}
+
+double HistoManager::calcDistPlane(TVector3 firstHit, TVector3 secondHit, TVector3 thirdHit){
+
+  TVector3 crossProd = (secondHit - firstHit).Cross(thirdHit - secondHit);
+  double distCoef = -crossProd.X() * secondHit.X() - crossProd.Y() * secondHit.Y() - crossProd.Z() * secondHit.Z();
+  if (crossProd.Mag() != 0)
+  {
+    return fabs(distCoef) / crossProd.Mag();
+  }
+  else
+  return 0.0;
 }
 
 void HistoManager::FillCosmicInfo(G4double theta, G4ThreeVector init, G4ThreeVector orig)
@@ -389,7 +433,6 @@ void HistoManager::AddGenInfo(VtxInformation* info)
       if (is4g) {
         fillHistogram("gen_gamma_multiplicity", 4);
         fillHistogram("gen_gamma_multiplicity_vs_lifetime", 4, doubleCheck(info->GetLifetime() / ps));
-
       }
 
       fillHistogram("gen_lifetime", info->GetLifetime() / ps);
@@ -513,10 +556,13 @@ void HistoManager::Save()
 {
   if (!fRootFile) return;
   fTree->Write();
+  G4cout << "!!![Error]!!!  -  step1 "<<G4endl;
   if (GetMakeControlHisto()) {
+    G4cout << "!!![Error]!!!  -  step2 "<<G4endl;
     TIterator* it = fStats.MakeIterator();
     TObject* obj;
     while ((obj = it->Next())) obj->Write();
+    G4cout << "!!![Error]!!!  -  step3 "<<G4endl;
   }
   fRootFile->Close();
   G4cout << "\n----> Histograms and ntuples are saved\n" << G4endl;

@@ -85,6 +85,7 @@ public:
 
   void fillHistogram(const char* name, double xValue, doubleCheck yValue = doubleCheck(), doubleCheck zValue = doubleCheck());
   void writeError(const char* nameOfHistogram, const char* messageEnd);
+  double calcDistPlane(TVector3 firstHit, TVector3 secondHit, TVector3 thirdHit);
 
   template <typename T>
   T* getObject(const char* name)
