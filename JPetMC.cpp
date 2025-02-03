@@ -73,8 +73,7 @@ int main (int argc, char** argv)
   runManager->SetUserInitialization(new ActionInitialization);
 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
-  G4VisManager* visManager = new G4VisExecutive;
-  visManager->Initialize();
+  G4VisManager* visManager = nullptr;
 
   if (!ui) {
     //! batch mode
@@ -100,6 +99,8 @@ int main (int argc, char** argv)
       ERROR_AND_EXIT_FAILURE("Job macro not provided, use '--help' to see usage");
     }
   } else {
+    visManager = new G4VisExecutive;
+    visManager->Initialize();
     // interactive mode
     if (cmdLineArgs.count("v")){
       auto fileName = cmdLineArgs["v"].as<std::string>();
