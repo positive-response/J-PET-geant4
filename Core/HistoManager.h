@@ -16,13 +16,22 @@
 #ifndef HISTOMANAGER_H
 #define HISTOMANAGER_H 1
 
-#include "EventMessenger.h"
+#include "../Info/EventMessenger.h"
+#include "../Info/VtxInformation.h"
+#include "../Objects/Framework/JPetGeantDecayTree.h"
+#include "../Objects/Framework/JPetGeantDecayTreeBranch.h"
+#include "../Objects/Framework/JPetGeantEventInformation.h"
+#include "../Objects/Framework/JPetGeantEventPack.h"
+#include "../Objects/Framework/JPetGeantScinHits.h"
+#include "../Objects/Geant4/DetectorHit.h"
+
 #include <G4Event.hh>
 #include <G4PrimaryParticle.hh>
 #include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH3F.h>
+#include <THashTable.h>
 #include <TTree.h>
 #include <globals.hh>
 #include <set>
@@ -64,15 +73,18 @@ public:
   void Save(); //! call once; save all trees and histograms
   void SaveEvtPack();
   void Clear() { fEventPack->Clear(); };
+  void DontSaveEvent() { fEmptyEvent = true; SaveEvtPack(); };
   void AddGenInfo(VtxInformation* info);
   void AddGenInfoParticles(G4PrimaryParticle* particle);
   void AddNewHit(DetectorHit*);
+  void AddEventInfo(DetectorHit* hit, int eventSize);
   void AddNodeToDecayTree(int nodeID, int trackID);
   void SetParentIDofPhoton(int x) { fParentIDofPhoton = x; };
   int GetParentIDofPhoton() const { return fParentIDofPhoton; };
   void SetEventNumber(int x) { fEventPack->SetEventNumber(x); };
   int GetEventNumber() { return fEventPack->GetEventNumber(); };
   void SetHistogramCreation(bool tf) { fMakeControlHisto = tf; };
+  void SetCosmicHistoCreation(bool tf) { fMakeCosmicHistos = tf; };
   bool GetMakeControlHisto() const { return fMakeControlHisto; };
   void SetDecayChannel(DecayChannel decayChannel) { fDecayChannel = decayChannel; };
   void FillHistoGenInfo(const G4Event* anEvent);
@@ -86,6 +98,16 @@ public:
   static void MergeNTuples(bool cleanUp=false);
   static std::string OuputFileName;
   static std::string OuputDir;
+  template <typename T>
+  T* getObject(const char* name)
+  {
+    TObject* tmp = fStats.FindObject(name);
+    if (!tmp)
+    {
+      return nullptr;
+    }
+    return dynamic_cast<T*>(tmp);
+  }
 
 private:
   HistoManager(const HistoManager& histoManagerToCopy);
@@ -95,7 +117,8 @@ private:
   bool fEmptyEvent = true;
   DecayChannel fDecayChannel;
   bool fBookStatus = false;
-  bool fMakeControlHisto = true;
+  bool fMakeControlHisto = false;
+  bool fMakeCosmicHistos = false;
   TFile* fRootFile = nullptr;
   TTree* fTree = nullptr;
   TBranch* fBranchTrk = nullptr;
@@ -111,7 +134,7 @@ private:
   void BookHistograms();
 
 protected:
-  std::unordered_map<std::basic_string<char>, TObject*> fControlHistograms;
+  THashTable fStats;
   std::set<std::string> fErrorCounts;
 };
 

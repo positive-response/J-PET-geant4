@@ -52,6 +52,9 @@ public:
   bool Save2g() { return fSave2g; }
   bool Save3g() { return fSave3g; }
   bool Save4g() { return fSave4g; }
+  std::pair<G4int, G4int> GetMultiplicityToSaveEvent() { return fEventDesiredSize; }
+  std::pair<G4double, G4double> GetEnergyRangeToSave() { return fEnergyRangeToSave; }
+  bool GetMultiplicityToSaveEventWithEnergy() { return fMultEnergyCheck; }
   bool GetCreateDecayTreeFlag() { return fCreateDecayTreeFlag; }
 
 private:
@@ -69,6 +72,8 @@ private:
   G4UIcmdWithAnInteger* fCMDMaxRegMulti = nullptr;
   G4UIcmdWithAnInteger* fCMDExcludedMulti = nullptr;
   G4UIcmdWithAnInteger* fSetSeed = nullptr;
+  G4UIcmdWithAnInteger* fCMDSaveMinSizedEvent = nullptr;
+  G4UIcmdWithAnInteger* fCMDSaveMaxSizedEvent = nullptr;
   G4UIcmdWithABool* fSaveSeed = nullptr;
   G4UIcmdWithADoubleAndUnit* fCMDAllowedMomentumTransfer = nullptr;
   G4UIcmdWithADoubleAndUnit* fCMDAppliedEnergyCut = nullptr;
@@ -78,6 +83,7 @@ private:
   G4UIcmdWithABool* fCMDSave4g = nullptr;
 
   G4UIcmdWithABool* fCreateDecayTree = nullptr;
+  G4UIcmdWith3VectorAndUnit* fSetEnergyRangeToSave = nullptr;
   
   bool fPrintStatistics = false;
   G4int fPrintPower = 10;
@@ -97,6 +103,9 @@ private:
   bool fSave2g = false;
   bool fSave3g = false;
   bool fSave4g = false;
+  std::pair<G4int, G4int> fEventDesiredSize = {0, 0};
+  std::pair<G4double, G4double> fEnergyRangeToSave = {-1*keV, -1*keV};
+  bool fMultEnergyCheck = false;
   bool fCreateDecayTreeFlag = false;
 };
 

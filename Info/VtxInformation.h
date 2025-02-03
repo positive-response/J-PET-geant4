@@ -38,9 +38,10 @@ public:
   void SetVtxPosition(G4ThreeVector position);
   void SetVtxPosition(G4double x, G4double y, G4double z);
   void SetLifetime(G4double x) { fLifetime = x; };
-  G4bool GetFourGammaGen() { return fFourGammaGen; };
-  G4bool GetThreeGammaGen() { return fThreeGammaGen; };
+  void SetDensity(G4double x) { fDensity = x; };
   G4bool GetTwoGammaGen() { return fTwoGammaGen; };
+  G4bool GetThreeGammaGen() { return fThreeGammaGen; };
+  G4bool GetFourGammaGen() { return fFourGammaGen; };
   G4bool GetPromptGammaGen() { return fPromptGammaGen; };
   G4bool GetCosmicGammaGen() const { return fCosmicGen; };
   G4int GetRunNr() { return fnRun; };
@@ -48,6 +49,7 @@ public:
   G4double GetVtxPositionY() { return fVtxPosition.y(); };
   G4double GetVtxPositionZ() { return fVtxPosition.z(); };
   G4double GetLifetime() { return fLifetime; };
+  G4double GetDensity() { return fDensity; };
 
 private:
   G4ThreeVector fVtxPosition;
@@ -58,6 +60,7 @@ private:
   G4bool fCosmicGen;
   G4int fnRun;
   G4double fLifetime;
+  G4double fDensity;
 };
 
 #endif /* !VTX_INFORMATION_H */
